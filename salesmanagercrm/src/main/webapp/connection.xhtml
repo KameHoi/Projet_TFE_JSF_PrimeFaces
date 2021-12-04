@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <f:facet name="first">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+    </f:facet>
+    <title>SalesManager</title>
+    <link rel="shortcut icon" type="image/x-icon" href="#{resource['/barcelona-layout/images/favicon-16x16.png']}"/>
+    <h:outputStylesheet name="salesmanagercrm.css" library="css"/>
+    <h:outputScript name="js/ripple.js" library="barcelona-layout"/>
+    <h:outputScript name="js/layout.js" library="barcelona-layout"/>
+</h:head>
+
+<h:body styleClass="login-body">
+    <p:growl id="msgs" skipDetailIfEqualsSummary="true" life="10000"/>
+
+    <div class="login-panel ui-fluid">
+        <div class="ui-g">
+            <div class="ui-g-12 login-header">
+                <h1>#{bundle['connection.title']}</h1>
+                <p:graphicImage name="images/logo_salesManager.png" library="barcelona-layout"
+                                styleClass="mgin-bottom-logo"/>
+            </div>
+            <h:form>
+                <h:panelGroup layout="block" id="loginPanel">
+                    <div class="ui-g-12">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inputText id="username" value="#{usersBean.usersEntity.username}" required="true"/>
+                            <p:outputLabel for="username" value="#{bundle['user.username']}"/>
+                            <p:messages for="username">
+                                <p:autoUpdate/>
+                            </p:messages>
+                        </h:panelGroup>
+                    </div>
+                    <div class="ui-g-12">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:password id="password" value="#{usersBean.passwordCo}" required="true"
+                                        feedback="false"/>
+                            <p:outputLabel for="password" value="#{bundle['user.password']}"/>
+                            <p:messages for="password" showDetail="true">
+                                <p:autoUpdate/>
+                            </p:messages>
+
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 button-container">
+                        <p:commandButton value="#{bundle['conncection.connection']}" action="#{usersBean.connection}"
+                                         update="msgs" icon="ui-icon-person" id="commandBtnLogin"/>
+                    </div>
+                </h:panelGroup>
+                <p:blockUI block="loginPanel" trigger="commandBtnLogin">
+                    <p>#{bundle['wait']}</p>
+                    <div class="spinner-pos">
+                        <i class="pi pi-spin pi-spinner" style="font-size: 4em"></i>
+                    </div>
+                </p:blockUI>
+            </h:form>
+        </div>
+    </div>
+
+
+    <h:outputStylesheet name="css/layout-#{guestPreferences.layout}.css" library="barcelona-layout"/>
+    <h:outputStylesheet name="css/ripple.css" library="barcelona-layout"/>
+</h:body>
+
+</html>

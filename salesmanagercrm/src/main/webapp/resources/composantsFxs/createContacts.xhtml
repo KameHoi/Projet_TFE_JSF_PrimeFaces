@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+<cc:interface name="createContacts"
+              displayName="#{bundle['contacts.create']}"
+              shortDescription="#{bundle['contacts.create']}"/>
+<cc:implementation>
+    <f:view>
+        <p:dialog
+                header="#{bundle['contacts.title']}"
+                modal="true"
+                id="contactsModal"
+                widgetVar="contactsWidgetModal" responsive="true" width="55%">
+            <div class="ui-g ui-fluid">
+                <h:form>
+                    <div class="ui-g form-group" style="margin-top:10px;">
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['contacts.firstname']}" for="contactFirstName"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputText id="contactFirstName" value="#{contactsBean.contactsEntity.firstname}"
+                                             required="true" requiredMessage="#{bundle['contacts.firstnameNotValid']}"
+                                             maxlength="255">
+                                    <p:ajax process="@form" update="validateContacts contactFirstNameErrorMsg"
+                                            event="keyup" resetValues="true"/>
+                                </p:inputText>
+                                <label>#{bundle['contacts.firstname']}</label>
+                                <p:message for="contactFirstName" id="contactFirstNameErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['contacts.lastname']}" for="contactLastName"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputText id="contactLastName" value="#{contactsBean.contactsEntity.lastname}"
+                                             required="true" requiredMessage="#{bundle['contacts.lastnameNotValid']}"
+                                             maxlength="255">
+                                    <p:ajax process="@form" update="validateContacts contactLastNameErrorMsg"
+                                            event="keyup" resetValues="true"/>
+                                </p:inputText>
+                                <label>#{bundle['contacts.lastname']}</label>
+                                <p:message for="contactLastName" id="contactLastNameErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel for="contactTypeDisplay"
+                                           value="#{bundle['contacts.chooseContactType']}"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <p:selectOneMenu id="contactTypeDisplay"
+                                             value="#{contactsBean.contactsEntity.contactTypesByIdContactTypes}"
+                                             converter="contactTypesConverter" required="true"
+                                             requiredMessage="#{bundle['contacts.ContactTypeNotValid']}">
+                                <f:selectItems value="#{contactTypesBean.contactTypesEntities}"
+                                               var="contactType"
+                                               itemValue="#{contactType}" itemLabel="#{contactType.label}"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel for="contactEmail" value="#{bundle['contacts.emailLabel']}"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputText id="contactEmail" value="#{contactsBean.contactsEntity.email}"
+                                             maxlength="255">
+                                    <f:validator validatorId="contactEmailValidator"/>
+                                    <p:ajax process="@form" resetValues="true"
+                                            update="validateContacts contactEmailErrorMsg" event="keyup"/>
+                                </p:inputText>
+                                <label>#{bundle['contacts.emailLabel']}</label>
+                                <p:message for="contactEmail" id="contactEmailErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel for="jobTitlesDisplay" value="#{bundle['contacts.chooseJobTitles']}"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:autoComplete id="jobTitlesDisplay" dropdown="true"
+                                                value="#{contactsBean.contactsEntity.jobTitlesByIdJobTitles}"
+                                                completeMethod="#{jobtitlesBean.completeJobTitles}"
+                                                var="jobtitles"
+                                                itemLabel="#{jobtitles.label}"
+                                                itemValue="#{jobtitles}"
+                                                converter="jobTitlesConverter"
+                                                scrollHeight="250">
+                                    <p:ajax process="@form"
+                                            update="validateContacts jobTitlesDisplayErrorMsg"
+                                            event="itemSelect" resetValues="true"/>
+                                    <p:ajax process="@form"
+                                            update="validateContacts jobTitlesDisplayErrorMsg"
+                                            event="change" resetValues="true"/>
+                                </p:autoComplete>
+                                <label>#{bundle['contacts.chooseJobTitles']}</label>
+                                <p:message for="jobTitlesDisplay" id="jobTitlesDisplayErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel for="phoneNumber" value="#{bundle['contacts.phoneNumberLabel']}"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputMask id="phoneNumber" value="#{contactsBean.contactsEntity.phoneNumber}"
+                                             mask="+32 999999999">
+                                    <f:validator validatorId="contactPhoneNumberValidator"/>
+                                    <p:ajax process="@form" resetValues="true"
+                                            update="validateContacts phoneNumberErrorMsg" event="keyup"/>
+                                </p:inputMask>
+                                <label>#{bundle['contacts.phoneNumberLabel']}</label>
+                                <p:message for="phoneNumber" id="phoneNumberErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-12">
+                        <div class="mgin-top" align="right">
+                            <p:commandButton value="#{bundle['validate']}"
+                                             action="#{contactsBean.addContact}"
+                                             id="validateContacts"
+                                             style="width:auto;margin-bottom:10px;"
+                                             disabled="#{facesContext.validationFailed or empty contactsBean.contactsEntity.firstname or contactsBean.contactsEntity.firstname.length() le 1 or empty contactsBean.contactsEntity.lastname or contactsBean.contactsEntity.lastname.length() le 1 }"
+                                             icon="ui-icon-check"
+                                             update="@(form) msgs"
+                                             resetValues="true"
+                                             oncomplete="if (!args.validationFailed){PF('contactsWidgetModal').hide();}"/>
+                        </div>
+                    </div>
+                    <p:hotkey bind="esc" handler="PF('contactsWidgetModal').hide()"/>
+                </h:form>
+            </div>
+        </p:dialog>
+    </f:view>
+</cc:implementation>
+</html>

@@ -1,0 +1,59 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="../WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">#{bundle['roleList.title']}</ui:define>
+    <ui:define name="content">
+
+        <f:metadata>
+            <f:viewAction action="#{permissionsBean.findAllPermissions}"/>
+        </f:metadata>
+
+        <h:body>
+            <h1>#{bundle['permissionsList.title']}</h1>
+            <div class="card card-w-title">
+
+                <h:form id="form">
+                    <p:tab id="displayAll"
+                           title="#{bundle['all']} ">
+                        <p:dataTable paginator="true" rows="15"
+                                     selection="#{permissionsBean.selectedPermissionsEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     var="perm"
+                                     rowKey="#{perm}"
+                                     emptyMessage="#{bundle['permissions.notFound']}"
+                                     rowsPerPageTemplate="10,20,50"
+                                     widgetVar="displayAllEntities"
+                                     filteredValue="#{permissionsBean.permissionsEntitiesFiltered}"
+
+                                     value="#{permissionsBean.permissionsEntityList}">
+
+                            <p:column width="500" headerText="#{bundle['permissions.label']}"
+                                      sortBy="#{perm.label}"
+                                      filterBy="#{perm.label}"
+                                      filterMatchMode="contains">
+                                <p:commandLink id="titleAll" value="#{perm.label}"
+                                               onclick="PF('dlg2').show();"
+                                               update="@(form)"
+                                >
+                                    <f:param name="idEntity" value="#{perm.id}"/>
+                                </p:commandLink>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:tab>
+
+                </h:form>
+            </div>
+
+            <p:messages id="messages" showDetail="true">
+                <p:autoUpdate/>
+            </p:messages>
+
+
+        </h:body>
+    </ui:define>
+</ui:composition>

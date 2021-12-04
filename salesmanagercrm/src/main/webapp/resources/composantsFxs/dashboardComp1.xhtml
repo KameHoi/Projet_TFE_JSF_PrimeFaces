@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="comp1"
+              displayName="#{bundle['dashboard.title']}"
+              shortDescription="#{bundle['dashboard.title']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <p:panel header="Calendar" style="height:100%" styleClass="ui-shadow-content ">
+            <p:schedule id="schedule" value="#{tasksBean.eventModel}" leftHeaderTemplate="prev,next"
+                        widgetVar="myschedule" draggable="false" resizable="false"/>
+        </p:panel>
+    </f:view>
+</cc:implementation>
+</html>

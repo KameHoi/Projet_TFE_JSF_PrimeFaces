@@ -1,0 +1,190 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="../WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">#{bundle['roleList.title']}</ui:define>
+    <ui:define name="content">
+
+        <f:metadata>
+            <f:viewAction action="#{rolesBean.findAllRoles}"/>
+        </f:metadata>
+
+        <h:body>
+            <div class="card card-w-title">
+                <h1>#{bundle['roleList.title']}</h1>
+                <h:form>
+                    <p:commandButton
+                            value="#{bundle['role.create']}"
+                            rendered="#{usersBean.currentUser.isPermitted('addRoles')}"
+                            action="#{rolesBean.createNewRoleEntity}"
+                            update="@(form)"
+                            oncomplete="PF('addRole').show();return false;"
+                            styleClass="NavyButton marginBottom10">
+                    </p:commandButton>
+                </h:form>
+
+
+                <h:form id="form">
+                    <p:growl id="msg" life="2000"/>
+                    <p:tab id="displayAll" title="#{bundle['all']} (#{rolesBean.rolesEntities.size()})">
+                        <p:dataTable paginator="true" rows="10"
+                                     selection="#{rolesBean.selectedRoleEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     var="role"
+                                     rowKey="#{role.id}"
+                                     emptyMessage="#{bundle['roles.notFound']}"
+                                     rowsPerPageTemplate="10,20,50"
+                                     widgetVar="displayAllEntities"
+                                     filteredValue="#{rolesBean.rolesEntitiesFiltered}"
+                                     rendered="#{rolesBean.rolesEntities.size eq 0 ? false : true}"
+                                     value="#{rolesBean.rolesEntityList}">
+
+                            <p:column colspan="10" headerText="#{bundle['role.label']}"
+                                      sortBy="#{role.label}"
+                                      filterBy="#{role.label}"
+                                      filterMatchMode="contains">
+                                <p:commandLink id="titleAll" value="#{role.label}"
+                                               onclick="PF('updateRole').show();"
+                                               actionListener="#{rolesBean.initialiseDialogRoleId(role.id)}"
+                                               update="@(form)">
+                                    <f:param name="idEntity" value="#{role.id}"/>
+                                </p:commandLink>
+                            </p:column>
+
+
+                            <p:column colspan="2">
+                                <p:commandLink
+                                        rendered="#{usersBean.currentUser.isPermitted('updateRoles')}"
+                                        actionListener="#{rolesBean.initialiseDialogRoleId(role.id)}"
+                                        update="@(form)"
+                                        oncomplete="PF('updateRole').show();return false;"
+                                        styleClass="NavyButton">
+                                    <i class="ui-icon ui-icon-create"/>
+
+                                </p:commandLink>
+
+                                <h:panelGroup rendered="#{role.active}">
+                                    <p:commandLink update="@(form)"
+                                                   action="#{rolesBean.delete(role.id)}"
+                                                   rendered="#{usersBean.currentUser.isPermitted('deleteRoles') and role.id != 1}"
+                                                   oncomplete="PF('displayAllEntities').filter();"
+                                    >
+
+                                        <p:confirm header="#{bundle['confirmation']}"
+                                                   message="#{bundle['role.confirmeDelete']}"
+                                                   icon="fa fa-warning"/>
+                                        <i class="ui-icon ui-icon-delete-forever"/>
+                                        <f:param name="idEntity" value="#{role.id}"/>
+                                        <f:param name="typeEntities" value="all"/>
+                                    </p:commandLink>
+
+                                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                                        <p:commandButton value="#{bundle['yes']}" type="button"
+                                                         styleClass="ui-confirmdialog-yes GreenButton"
+                                                         icon="ui-icon-check"/>
+                                        <p:commandButton value="#{bundle['no']}" type="button"
+                                                         styleClass="ui-confirmdialog-no RedButton"
+                                                         icon="ui-icon-close"/>
+                                    </p:confirmDialog>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{not role.active}">
+                                    <p:commandLink update="@form"
+                                                   action="#{rolesBean.activate(role.id)}"
+                                                   rendered="#{usersBean.currentUser.isPermitted('deleteRoles')}"
+                                                   oncomplete="PF('displayAllEntities').filter();">
+                                        <i class="ui-icon ui-icon-update"/>
+                                        <f:param name="idEntity" value="#{role.id}"/>
+                                        <f:param name="typeEntities" value="all"/>
+                                    </p:commandLink>
+                                </h:panelGroup>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:tab>
+                    <p:staticMessage severity="info" detail="#{bundle['users.notFound']}"
+                                     rendered="#{transactionsBean.transactionsEntities.size() eq 0 ? true : false}"/>
+                </h:form>
+            </div>
+
+            <!-- e*******************update*******************e- -->
+
+            <p:dialog header="#{bundle['role.update']}" widgetVar="updateRole" modal="true"
+                      responsive="true" id="updateRoleDialog">
+
+                <h:form id="updateRoleDialogForm">
+
+                    <p:outputPanel id="updateRoleListManagment" class="ui-fluid">
+                        <h:panelGroup styleClass="md-inputfield jobtitlesFullDisplay">
+                            <p:inputText id="roleLabelUpdate" value="#{rolesBean.rolesEntity.label}"
+                                         maxlength="255"
+                                         required="true"
+                                         requiredMessage="#{bundle['roleEmpty']}"
+                                         validatorMessage="#{bundle['roles.labelExist']}">
+                                <p:ajax process="@form"
+                                        update="msgRoleUpdate updateRoleDialogForm:updateRole"
+                                        event="keyup" resetValues="true"/>
+                                <f:validator validatorId="roleLabelValidator"/>
+                            </p:inputText>
+                            <label>#{bundle['role.label']}</label>
+                            <p:message id="msgRoleUpdate" for="roleLabelUpdate"/>
+                        </h:panelGroup>
+                    </p:outputPanel>
+
+
+                    <div align="right" class="mgin-top">
+                        <p:commandButton value="#{bundle['validate']}" action="#{rolesBean.updateEntity}"
+                                         id="updateRole"
+                                         disabled="#{facesContext.validationFailed or empty rolesBean.rolesEntity.label}"
+                                         oncomplete="if (!args.validationFailed){PF('updateRole').hide()}; PF('displayAllEntities').filter();"
+                                         resetValues="true"
+                                         update="@(form)"/>
+                    </div>
+
+
+                    <p:hotkey bind="esc" handler="PF('updateRole').hide()"/>
+                </h:form>
+            </p:dialog>
+
+            <!-- e*******************add*******************e- -->
+
+            <p:dialog header="#{bundle['role.create']}" widgetVar="addRole" modal="true"
+                      responsive="true" id="addRoleDialog">
+                <h:form id="addRoleDialogForm">
+
+                    <p:outputPanel id="roleListManagment" class="ui-fluid">
+                        <h:panelGroup styleClass="md-inputfield jobtitlesFullDisplay">
+                            <p:inputText id="roleLabelAdd" value="#{rolesBean.rolesEntityNew.label}"
+                                         maxlength="255"
+                                         required="true"
+                                         requiredMessage="#{bundle['roleEmpty']}" validatorMessage="#{bundle['roles.labelExist']}">
+                                <p:ajax process="@form"
+                                        update="msgRoleAdd addRoleDialogForm:addRole"
+                                        event="keyup" resetValues="true"/>
+                                <f:validator validatorId="roleLabelValidator"/>
+                            </p:inputText>
+                            <label>#{bundle['role.label']}</label>
+                            <p:message id="msgRoleAdd" for="roleLabelAdd"/>
+                        </h:panelGroup>
+                    </p:outputPanel>
+
+                    <div align="right" class="mgin-top">
+                        <p:commandButton value="#{bundle['validate']}" action="#{rolesBean.addEntity}"
+                                         id="addRole"
+                                         disabled="#{facesContext.validationFailed or empty rolesBean.rolesEntityNew.label}"
+                                         oncomplete="if (!args.validationFailed){PF('addRole').hide()}; PF('displayAllEntities').filter();"
+                                         resetValues="true"
+                                         update="@(form)"/>
+                    </div>
+
+                    <p:hotkey bind="esc" handler="PF('addRole').hide()"/>
+                </h:form>
+            </p:dialog>
+
+
+        </h:body>
+    </ui:define>
+</ui:composition>

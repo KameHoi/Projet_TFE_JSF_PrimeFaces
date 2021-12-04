@@ -1,0 +1,192 @@
+.boldText {
+    font-weight: bold;
+}
+
+.dataTable-margin-top {
+    margin-top: 1rem;
+}
+
+.jobtitlesFullDisplay {
+    margin-top: 2rem;
+}
+
+.modalValidateBtn-margin-top {
+    margin-top: 1rem;
+}
+
+.taskUpdateTitle {
+    display: block;
+    padding-bottom: 5px;
+    padding-top: 20px;
+    font-weight: bold;
+}
+
+.textRed {
+    color: red;
+}
+
+.lineThrough {
+    text-decoration: line-through;
+}
+
+.marginBottom10 {
+    margin-bottom: 10px;
+}
+
+.marginBottom15 {
+    margin-bottom: 15px;
+}
+
+.labelLike {
+    font-size: 12px;
+    color: #607D8B;
+    padding-left: 5px;
+}
+
+.outputTextNotes {
+    padding: 10px;
+    display: block;
+}
+
+.outputTextDueDatePanel {
+    padding: 10px 0px 10px 10px;
+}
+
+.displayInlineBlock {
+    display: inline-block;
+}
+
+.columnEditDelte {
+    width: 85px;
+}
+
+.styleEditorOutPut {
+    padding: 10px 0 10px 0;
+}
+
+.align-center {
+    display: flex;
+    align-items: center !important;
+}
+
+.justify-end {
+    display: flex;
+    justify-content: flex-end !important;
+}
+
+.flex-shrink-0, .no-shrink {
+    display: flex;
+    flex-shrink: 0 !important;
+}
+
+.align-start {
+    display: flex;
+    align-items: flex-start !important;
+}
+
+.justify-between {
+    display: flex;
+    justify-content: space-between !important;
+}
+
+.display-inline-flex {
+    display: inline-flex !important;
+}
+
+.outputTextCellEditor {
+    padding-right: 20px;
+}
+
+.fontStyleItalic {
+    font-style: italic;
+}
+
+.padingRight5Px {
+    padding-right: 5px;
+}
+
+.title-topBar {
+    vertical-align: middle;
+    display: inline-block;
+    height: 33px;
+}
+
+.mgin-top {
+    margin-top: 15px;
+}
+
+.mgin-top-30 {
+    margin-top: 30px;
+}
+
+.mgin-bottom-10 {
+    margin-bottom: 10px;
+}
+
+.mgin-top-10 {
+    margin-top: 10px;
+}
+
+.mgin-bottom {
+    margin-bottom: 1.5rem;
+}
+
+.mgin-bottom-logo {
+    margin-top: -13px !important;
+}
+
+.descriptionTask {
+    display: block;
+    padding-bottom: 10px;
+}
+
+.testcolor {
+    background-color: white !important;
+}
+
+.addressDetailsDesign {
+    margin-top: 1rem;
+}
+
+.profile-info-corrected {
+    margin-top: 0px !important;
+}
+
+.taskDashboard {
+    height: 100%;
+    background-color: white !important;
+}
+
+#detailsRight > #formTabView > #tabViewRight > #listNotes > #note1_data tr {
+    background-color: white !important;
+}
+
+.styleDataTableEdit {
+    background-color: white !important;
+    color: black !important;
+}
+
+.colorBlack {
+    color: black !important;
+}
+
+body .ui-state-active .ui-icon, body .ui-state-highlight .ui-icon {
+    color: #757575;
+}
+
+body .ui-datatable tbody tr.ui-state-highlight .ui-inputfield {
+    color: #424242 !important;
+}
+
+body .ui-datatable tbody tr .ui-cell-editor-input input {
+    color: black !important;
+}
+
+.dataTableCellEditorInput {
+    padding-top: 15px !important;
+    padding-left: 15px !important;
+}
+
+.my-table-classe THEAD {
+    display: none;
+}

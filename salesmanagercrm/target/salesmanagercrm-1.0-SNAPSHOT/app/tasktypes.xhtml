@@ -1,0 +1,20 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs"
+                template="../WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">#{bundle['taskTypes.title']}</ui:define>
+    <ui:define name="content">
+
+        <f:metadata>
+            <f:viewAction action="#{taskTypesBean.findAllTaskTypesEntities}"/>
+        </f:metadata>
+
+        <p:growl id="msgs" skipDetailIfEqualsSummary="true" life="10000"/>
+
+        <fxs:listAllTaskTypes id="listAllTaskTypes"/>
+
+    </ui:define>
+</ui:composition>

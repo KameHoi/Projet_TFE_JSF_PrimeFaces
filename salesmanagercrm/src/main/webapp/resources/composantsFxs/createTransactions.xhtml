@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="createTransactions"
+              displayName="#{bundle['transactions.create']}"
+              shortDescription="#{bundle['transactions.create']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+
+        <div class="ui-g ui-fluid">
+            <h:form id="createTransactionForm">
+
+                <div class="ui-g form-group" style="margin-top:10px;">
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="title" value="#{bundle['title']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inputText id="title" value="#{transactionsBean.transactionsEntity.title}"
+                                         required="true"
+                                         maxlength="255"
+                                         requiredMessage="#{bundle['transactions.validator.title']}">
+                                <p:ajax process="@form"
+                                        update="msg listAllTransactions:createTransactions:createTransactionForm:buttonCreateTransaction"
+                                        resetValues="true" event="keyup"/>
+                            </p:inputText>
+                            <label>#{bundle['title']}:</label>
+                            <p:message id="msg" for="title"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-6"><p:spacer/></div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="phase" value="#{bundle['transactions.phase']}:"/>
+                    </div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <p:selectOneMenu id="phase"
+                                         value="#{transactionsBean.transactionsEntity.transactionPhasesByIdTransactionPhases}"
+                                         converter="transactionPhasesConverter">
+
+                            <f:selectItems value="#{transactionPhasesBean.transactionPhasesEntities}"
+                                           var="transactionPhasesEntities" itemValue="#{transactionPhasesEntities}"
+                                           itemLabel="#{transactionPhasesEntities.label}"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="amount" value="#{bundle['amount']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inputNumber id="amount" value="#{transactionsBean.transactionsEntity.amount}" symbol=" €"
+                                           symbolPosition="s"
+                                           minValue="0"
+                                           decimalSeparator="," thousandSeparator=".">
+                                <p:ajax update="amount"/>
+                            </p:inputNumber>
+                            <label>9.999,99 €</label>
+                            <p:message id="msgAmount" for="amount"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="datetime" value="#{bundle['dueDate']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:calendar value="#{transactionsBean.transactionsEntity.endDate}"
+                                        converterMessage="#{bundle['converter.dateTime']}"
+                                        id="datetime" pattern="dd/MM/yyyy HH:mm" mindate="#{transactionsBean.now}">
+                                <p:ajax process="@form"
+                                        update="msgDateTime listAllTransactions:createTransactions:createTransactionForm:buttonCreateTransaction"
+                                        event="valueChange" resetValues="true"/>
+                            </p:calendar>
+                            <label>#{bundle['dueDate']}:</label>
+                            <p:message id="msgDateTime" for="datetime"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="type" value="#{bundle['transactions.type']}:"/>
+                    </div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <p:selectOneMenu id="type"
+                                         value="#{transactionsBean.transactionsEntity.transactionTypesByIdTransactionTypes}"
+                                         converter="transactionTypesConverter">
+
+                            <f:selectItems value="#{transactionTypesBean.transactionTypesEntities}"
+                                           var="transactionTypesEntities" itemValue="#{transactionTypesEntities}"
+                                           itemLabel="#{transactionTypesEntities.label}"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="Contact"
+                                                                value="#{bundle['associateWithContact']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:autoComplete id="Contact"
+                                            value="#{transactionsBean.transactionsEntity.contactsByIdContacts}"
+                                            completeMethod="#{contactsBean.completeContactsContains}"
+                                            var="Contact"
+                                            itemLabel="#{Contact.lastname.concat(' '.concat(Contact.firstname))}"
+                                            itemValue="#{Contact}"
+                                            dropdown="true"
+                                            converter="#{contactsConverter}"
+                                            groupBy="#{contactsBean.getContactsEntityGroup(Contact)}"
+                                            scrollHeight="250">
+                                <p:ajax process="@form"
+                                        update="msgContact listAllTransactions:createTransactions:createTransactionForm:buttonCreateTransaction"
+                                        event="itemSelect" resetValues="true"/>
+                                <p:ajax process="@form"
+                                        update="msgContact listAllTransactions:createTransactions:createTransactionForm:buttonCreateTransaction"
+                                        event="change" resetValues="true"/>
+                            </p:autoComplete>
+                            <label>#{bundle['contact']}:</label>
+                            <p:message id="msgContact" for="Contact"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="Company"
+                                                                value="#{bundle['associateWithCompany']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:autoComplete id="Company"
+                                            value="#{transactionsBean.transactionsEntity.companiesByIdCompanies}"
+                                            completeMethod="#{companiesBean.completeCompaniesContains}"
+                                            var="Company"
+                                            itemLabel="#{Company.label}"
+                                            itemValue="#{Company}"
+                                            dropdown="true"
+                                            converter="#{companiesConverter}"
+                                            groupBy="#{companiesBean.getCompaniesEntityGroup(Company)}"
+                                            scrollHeight="250">
+                                <p:ajax process="@form"
+                                        update="msgCompany listAllTransactions:createTransactions:createTransactionForm:buttonCreateTransaction"
+                                        event="itemSelect" resetValues="true"/>
+                                <p:ajax process="@form"
+                                        update="msgCompany listAllTransactions:createTransactions:createTransactionForm:buttonCreateTransaction"
+                                        event="change" resetValues="true"/>
+                            </p:autoComplete>
+                            <label>#{bundle['company']}:</label>
+                            <p:message id="msgCompany" for="Company"/>
+                        </h:panelGroup>
+                    </div>
+
+                </div>
+                <div class="ui-g-12 ui-lg-12">
+                    <div align="right" class="mgin-top">
+                        <p:commandButton style="width:auto;margin-bottom:10px;"
+                                         update="@(form) msgs"
+                                         id="buttonCreateTransaction"
+                                         disabled="#{facesContext.validationFailed or empty transactionsBean.transactionsEntity.title }"
+                                         resetValues="true"
+                                         oncomplete="if (!args.validationFailed){PF('createDialog').hide()}; PF('displayAllEntities').filter();"
+                                         value="#{bundle['save']}"
+                                         action="#{transactionsBean.saveEntity}"
+                        />
+                    </div>
+                </div>
+                <p:hotkey bind="esc" handler="PF('createDialog').hide()"/>
+            </h:form>
+        </div>
+    </f:view>
+</cc:implementation>
+</html>

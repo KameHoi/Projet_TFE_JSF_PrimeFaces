@@ -1,0 +1,333 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs"
+                template="../WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">#{bundle['contact']}</ui:define>
+    <ui:define name="content">
+
+        <f:metadata>
+            <f:viewAction action="#{contactsBean.getDisplayOneContact}"/>
+            <f:viewAction action="#{civilitiesBean.completeCiviltyEntitiesList}"/>
+            <f:viewAction action="#{notesBean.setParamType('displayByContact')}"/>
+            <f:viewAction action="#{tasksBean.setParamType('displayByContact')}"/>
+            <f:viewAction action="#{tasksBean.createNewEntity}"/>
+            <f:viewAction action="#{tasksBean.listEntitiesContacts}"/>
+            <f:viewAction action="#{taskTypesBean.findAllTaskTypesEntities}"/>
+            <f:viewAction action="#{notesBean.createNewEntity}"/>
+            <f:viewAction action="#{notesBean.listEntitiesContacts}"/>
+            <f:viewAction action="#{contactsBean.activityThread}"/>
+            <f:viewAction action="#{companiesBean.findAllActiveCompanies}"/>
+            <f:viewAction action="#{companiesContactsBean.fillSelectedCompaniesContacts}"/>
+            <f:viewAction action="#{contactTypesBean.findAllContactTypes}"/>
+        </f:metadata>
+
+        <p:growl id="msgs" skipDetailIfEqualsSummary="true" life="10000"/>
+
+
+        <div class="ui-g">
+            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                <div class="card card-w-title">
+                    <h1>#{bundle['contact.details']}</h1>
+                    <h:form id="contactDetailsUpdateForm">
+                        <p:panelGrid columns="4" layout="flex"
+                                     id="contactDetailsUpdatePanelGrid"
+                                     columnClasses="p-col-12 p-md-3 p-xl-2, p-col-12 p-md-9 p-xl-4, p-col-12 p-md-3 p-xl-2, p-col-12 p-md-9 p-xl-4"
+                                     contentStyleClass="ui-fluid" styleClass="ui-panelgrid-blank form-group">
+                            <p:accordionPanel multiple="true">
+                                <p:tab title="#{bundle['contacts.tabTitle1']}">
+
+                                    <h:panelGroup styleClass="mgin-top-30 mgin-bottom-10">
+                                        <p:outputLabel for="civilities" value="Civilité"/>
+                                        <p:selectOneRadio id="civilities"
+                                                          disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}"
+                                                          value="#{contactsBean.contactsEntity.civilitiesByIdCivilities}"
+                                                          unselectable="true">
+                                            <f:selectItems value="#{civilitiesBean.civilitiesEntities}" var="civilities"
+                                                           itemValue="#{civilities}" itemLabel="#{civilities.label}"/>
+                                            <f:converter converterId="civilitiesConverter"/>
+                                        </p:selectOneRadio>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputText id="contactEmail" value="#{contactsBean.contactsEntity.email}"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}"
+                                                     maxlength="255">
+                                            <f:validator validatorId="contactEmailValidator"/>
+                                            <p:ajax process="@form"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft contactEmailErrorMsg"
+                                                    event="keyup" resetValues="true"/>
+                                        </p:inputText>
+                                        <label>#{bundle['contacts.emailLabel']}</label>
+                                        <p:message for="contactEmail" id="contactEmailErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputText id="contactFirstName"
+                                                     value="#{contactsBean.contactsEntity.firstname}"
+                                                     maxlength="255"
+                                                     required="true"
+                                                     requiredMessage="#{bundle['contacts.firstnameNotValid']}"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form"
+                                                    event="keyup"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft contactFirstNameErrorMsg"
+                                                    resetValues="true"/>
+                                        </p:inputText>
+                                        <label>#{bundle['contacts.firstname']}</label>
+                                        <p:message for="contactFirstName" id="contactFirstNameErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputText id="contactLastName"
+                                                     value="#{contactsBean.contactsEntity.lastname}"
+                                                     maxlength="255"
+                                                     required="true"
+                                                     requiredMessage="#{bundle['contacts.lastnameNotValid']}"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form"
+                                                    event="keyup"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft contactLastNameErrorMsg"
+                                                    resetValues="true"/>
+                                        </p:inputText>
+                                        <label>#{bundle['contacts.lastname']}</label>
+                                        <p:message for="contactLastName" id="contactLastNameErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <div class="mgin-top">
+                                        <p:outputLabel for="jobTitlesDisplay" value="#{bundle['jobTitles.modalLabel']}"
+                                                       styleClass="labelLike"/>
+                                        <p:autoComplete id="jobTitlesDisplay" dropdown="true"
+                                                        value="#{contactsBean.contactsEntity.jobTitlesByIdJobTitles}"
+                                                        completeMethod="#{jobtitlesBean.completeJobTitles}"
+                                                        var="jobtitles"
+                                                        itemLabel="#{jobtitles.label}"
+                                                        itemValue="#{jobtitles}"
+                                                        converter="jobTitlesConverter"
+                                                        scrollHeight="250"
+                                                        placeholder="#{bundle['contacts.chooseJobTitles']}"
+                                                        disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft jobTitlesDisplayErrorMsg"
+                                                    event="itemSelect" resetValues="true"/>
+                                            <p:ajax process="@form"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft jobTitlesDisplayErrorMsg"
+                                                    event="change" resetValues="true"/>
+                                        </p:autoComplete>
+                                        <p:message for="jobTitlesDisplay" id="jobTitlesDisplayErrorMsg"/>
+                                    </div>
+
+                                    <div class="mgin-top">
+                                        <p:outputLabel for="branchActivitiesDisplay"
+                                                       value="#{bundle['branchActivities.title']}"
+                                                       styleClass="labelLike"/>
+                                        <p:autoComplete id="branchActivitiesDisplay" dropdown="true"
+                                                        value="#{contactsBean.contactsEntity.branchActivitiesByIdBranchActivities}"
+                                                        completeMethod="#{branchActivitiesBean.completeBranchActivities}"
+                                                        var="branchActivities"
+                                                        itemLabel="#{branchActivities.label}"
+                                                        itemValue="#{branchActivities}"
+                                                        converter="branchActivitiesConverter"
+                                                        scrollHeight="250"
+                                                        groupBy="#{branchActivitiesBean.getBranchActivitiesEntityGroup(branchActivities)}"
+                                                        placeholder="#{bundle['company.chooseBranchActivity']}"
+                                                        disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft branchActivitiesDisplayErrorMsg"
+                                                    event="itemSelect" resetValues="true"/>
+                                            <p:ajax process="@form"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft branchActivitiesDisplayErrorMsg"
+                                                    event="change" resetValues="true"/>
+                                        </p:autoComplete>
+                                        <p:message for="branchActivitiesDisplay" id="branchActivitiesDisplayErrorMsg"/>
+                                    </div>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputMask id="phoneNumber" value="#{contactsBean.contactsEntity.phoneNumber}"
+                                                     mask="+32 999999999"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <f:validator validatorId="contactPhoneNumberValidator"/>
+                                            <p:ajax process="@form" event="keyup"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft phoneNumberErrorMsg"/>
+                                        </p:inputMask>
+                                        <label>#{bundle['contacts.smartphoneNumberLabel']}</label>
+                                        <p:message for="phoneNumber" id="phoneNumberErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <div class="mgin-top">
+                                        <p:outputLabel for="contactTypeDisplay"
+                                                       value="#{bundle['contacts.chooseContactType']}"
+                                                       styleClass="labelLike"/>
+                                        <p:selectOneMenu id="contactTypeDisplay"
+                                                         value="#{contactsBean.contactsEntity.contactTypesByIdContactTypes}"
+                                                         converter="contactTypesConverter" required="true"
+                                                         requiredMessage="#{bundle['contacts.ContactTypeNotValid']}"
+                                                         disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <f:selectItems value="#{contactTypesBean.contactTypesEntities}"
+                                                           var="contactType"
+                                                           itemValue="#{contactType}" itemLabel="#{contactType.label}"/>
+                                        </p:selectOneMenu>
+                                    </div>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputMask id="companyBankAccount"
+                                                     value="#{contactsBean.contactsEntity.bankAccount}"
+                                                     mask="BE-99999999999999"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <f:validator validatorId="companyBankAccountValidator"/>
+                                            <p:ajax process="@form" event="keyup"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft companyBankAccountErrorMsg"/>
+                                        </p:inputMask>
+                                        <label>#{bundle['company.bankAccount']}</label>
+                                        <p:message for="companyBankAccount" id="companyBankAccountErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <span style="margin-right: 15px"
+                                              class="labelLike">#{bundle['company.registerDateLabel']}</span>
+                                        <h:outputText id="registerDate"
+                                                      value="#{contactsBean.contactsEntity.registerDate eq null ? '--' : contactsBean.contactsEntity.registerDate}">
+                                            <f:convertDateTime type="localDate"
+                                                               pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                        </h:outputText>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <span style="margin-right: 15px"
+                                              class="labelLike">#{bundle['company.modificationDateLabel']}</span>
+                                        <h:outputText id="modficationDate"
+                                                      value="#{contactsBean.contactsEntity.modificationDate eq null ? '--' : contactsBean.contactsEntity.modificationDate }">
+                                            <f:convertDateTime type="localDate"
+                                                               pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                        </h:outputText>
+                                    </h:panelGroup>
+                                </p:tab>
+
+                                <p:tab title="#{bundle['contacts.tabTitle2']}">
+                                    <h:panelGroup styleClass="mgin-top-30 mgin-bottom-10">
+                                        <p:selectCheckboxMenu label="#{bundle['contacts.chooseCompany']}" filter="true"
+                                                              filterMatchMode="contains" style="width: 100%"
+                                                              value="#{companiesContactsBean.selectedCompaniesContacts}"
+                                                              multiple="true"
+                                                              disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax event="itemUnselect" listener="#{contactsBean.onItemUnselect}"/>
+                                            <f:selectItems value="#{companiesBean.companiesEntities}"
+                                                           var="company"
+                                                           itemValue="#{company}"
+                                                           itemLabel="#{company.label}"/>
+                                        </p:selectCheckboxMenu>
+                                    </h:panelGroup>
+                                </p:tab>
+
+                                <p:tab title="#{bundle['contacts.tabTitle3']}">
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputText id="contactAddressStreet"
+                                                     value="#{addressesBean.addressesEntity.street}"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form" event="keyup"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft contactAddressStreetErrorMsg"/>
+                                        </p:inputText>
+                                        <label>#{bundle['address.street']}</label>
+                                        <p:message for="contactAddressStreet" id="contactAddressStreetErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputText id="contactNumberAdress"
+                                                     value="#{addressesBean.addressesEntity.number}"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form" event="keyup"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft contactNumberAdressErrorMsg"/>
+                                        </p:inputText>
+                                        <label>#{bundle['address.number']}</label>
+                                        <p:message for="contactNumberAdress" id="contactNumberAdressErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:inputText id="contactBox"
+                                                     value="#{addressesBean.addressesEntity.box}"
+                                                     disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form" event="keyup"
+                                                    update="contactDetailsUpdateForm:contactDetailsBtnLeft contactBoxErrorMsg"/>
+                                        </p:inputText>
+                                        <label>#{bundle['address.box']}</label>
+                                        <p:message for="contactBox" id="contactBoxErrorMsg"/>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <p:autoComplete id="addressCity" dropdown="true"
+                                                        value="#{addressesBean.addressesEntity.citiesByIdCities}"
+                                                        completeMethod="#{citiesBean.completeCitiesEntityContains}"
+                                                        var="cities"
+                                                        itemLabel="#{cities.postalCode.concat(' ' .concat(cities.label))}"
+                                                        itemValue="#{cities}"
+                                                        scrollHeight="250"
+                                                        converter="citiesConverter"
+                                                        groupBy="#{citiesBean.getCitiesEntityGroup(cities)}"
+                                                        disabled="#{not usersBean.currentUser.isPermitted('updateContacts')}">
+                                            <p:ajax process="@form"
+                                                    update="AddressCityErrorMsg showAddressDetails contactDetailsUpdateForm:contactDetailsBtnLeft"
+                                                    event="itemSelect"/>
+                                            <p:ajax process="@form"
+                                                    update="AddressCityErrorMsg showAddressDetails contactDetailsUpdateForm:contactDetailsBtnLeft"
+                                                    event="change"/>
+                                        </p:autoComplete>
+                                        <label>#{bundle['cities.label']}</label>
+                                        <p:message id="AddressCityErrorMsg" for="addressCity"/>
+                                    </h:panelGroup>
+
+                                    <p:panel id="showAddressDetails" styleClass="addressDetailsDesign">
+                                        <h:panelGroup styleClass="md-inputfield mgin-top-30 mgin-bottom-10">
+                                        <span style="margin-right: 15px"
+                                              class="labelLike">#{bundle['address.region']}</span>
+                                            <h:outputText id="addressRegion"
+                                                          value="#{addressesBean.addressesEntity.citiesByIdCities.region eq null ? '--' : addressesBean.addressesEntity.citiesByIdCities.region}">
+                                            </h:outputText>
+                                        </h:panelGroup>
+
+                                        <h:panelGroup styleClass="md-inputfield"
+                                                      style="margin-bottom:10px;">
+                                        <span style="margin-right: 15px"
+                                              class="labelLike">#{bundle['address.postalCode']}</span>
+                                            <h:outputText id="addressPostalCode"
+                                                          value="#{addressesBean.addressesEntity.citiesByIdCities.postalCode eq null ? '--' : addressesBean.addressesEntity.citiesByIdCities.postalCode}">
+                                            </h:outputText>
+                                        </h:panelGroup>
+
+                                        <h:panelGroup styleClass="md-inputfield">
+                                        <span style="margin-right: 15px"
+                                              class="labelLike">#{bundle['address.country']}</span>
+                                            <h:outputText id="addressCountry"
+                                                          value="#{addressesBean.addressesEntity.citiesByIdCities.countriesByIdCountries.label eq null ? '--' : addressesBean.addressesEntity.citiesByIdCities.countriesByIdCountries.label}">
+                                            </h:outputText>
+                                        </h:panelGroup>
+                                    </p:panel>
+                                </p:tab>
+
+                            </p:accordionPanel>
+                        </p:panelGrid>
+
+                        <div align="right">
+                            <p:commandButton value="#{bundle['validate']}"
+                                             action="#{contactsBean.updateContact}"
+                                             rendered="#{usersBean.currentUser.isPermitted('updateContacts')}"
+                                             id="contactDetailsBtnLeft"
+                                             resetValues="true"
+                                             disabled="#{facesContext.validationFailed or empty contactsBean.contactsEntity.firstname or contactsBean.contactsEntity.firstname.length() le 1 or empty contactsBean.contactsEntity.lastname or contactsBean.contactsEntity.lastname.length() le 1}"
+                                             icon="ui-icon-check"
+                                             update="contactDetailsUpdateForm:contactDetailsUpdatePanelGrid msgs"
+                            />
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+
+            <div class="ui-g-12 ui-md-6 ui-lg-8">
+                <fxs:contactDetailsRight id="detailsRight"/>
+            </div>
+
+        </div>
+    </ui:define>
+</ui:composition>

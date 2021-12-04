@@ -1,0 +1,56 @@
+<ui:composition
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:p="http://primefaces.org/ui">
+
+    <div class="footer clearfix">
+        <div class="card">
+            <div class="ui-g footer-content">
+                <div class="ui-g-12 ui-md-6">
+                    <p:graphicImage name="images/logo-salesmanager-black.png" library="barcelona-layout"/>
+                    <span>SalesManager &#xA9; Arifi Younes/Larché Marie-Elise/Zabbara Maximilien 2021-2022 </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script type="text/javascript">
+        //<![CDATA[
+        function skinBar() {
+            this.cfg.shadow = false;
+            this.cfg.title = '';
+            this.cfg.seriesColors = ['#64B5F6', '#FFD54F'];
+            this.cfg.grid = {
+                background: '#ffffff',
+                borderColor: '#ffffff',
+                gridLineColor: '#F5F5F5',
+                shadow: false
+            };
+            this.cfg.axesDefaults = {
+                borderWidth: 0.1,
+                borderColor: 'bdbdbd',
+                rendererOptions: {
+                    textColor: '#666F77'
+                }
+            };
+            this.cfg.seriesDefaults = {
+                shadow: false,
+                lineWidth: 1,
+                renderer: $.jqplot.BarRenderer,
+                markerOptions: {
+                    shadow: false,
+                    size: 7,
+                    style: 'circle'
+                }
+            };
+        }
+
+        //]]>
+    </script>
+
+
+    <h:outputScript name="salesmanagercrm.js" library="js"/>
+</ui:composition>

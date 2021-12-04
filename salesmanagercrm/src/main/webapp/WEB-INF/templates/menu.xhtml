@@ -1,0 +1,97 @@
+<ui:composition
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:p="http://primefaces.org/ui"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:pa="http://primefaces.org/barcelona">
+
+    <div class="layout-sidebar #{guestPreferences.darkMenu ? 'layout-sidebar-dark': ''}">
+        <pa:tabMenu>
+            <pa:tab icon="home" title="#{bundle['menu.features']}">
+                <h:form id="menu-form">
+                    <pa:menu widgetVar="me">
+                        <p:menuitem id="um_dashboard" value="#{bundle['menu.dashboard']}" icon="&#xE871;"
+                                    outcome="/app/dashboard"/>
+                        <p:submenu id="om_orientation" label="#{bundle['menu.orientation']}" icon="&#xE237;">
+                            <p:menuitem id="om_ltr" value="#{bundle['menu.LTR']}" icon="&#xE236;"
+                                        actionListener="#{guestPreferences.setOrientationRTL(false)}" ajax="false"/>
+                            <p:menuitem id="om_rtl" value="#{bundle['menu.RTL']}" icon="&#xE237;"
+                                        actionListener="#{guestPreferences.setOrientationRTL(true)}" ajax="false"/>
+                        </p:submenu>
+                        <p:submenu id="um_themes" label="#{bundle['menu.Themes']}" icon="&#xE40A;">
+                            <p:menuitem id="theme3" value="#{bundle['menu.light']}" icon="brightness_5"
+                                        actionListener="#{guestPreferences.setTheme('blue-grey')}" ajax="false">
+                                <f:actionListener binding="#{guestPreferences.setDarkMenu(false)}"/>
+                            </p:menuitem>
+                            <p:menuitem id="theme6" value="#{bundle['menu.dark']}" icon="brightness_4"
+                                        actionListener="#{guestPreferences.setTheme('dark-green')}" ajax="false">
+                                <f:actionListener binding="#{guestPreferences.setDarkMenu(true)}"/>
+                            </p:menuitem>
+                        </p:submenu>
+                    </pa:menu>
+                </h:form>
+            </pa:tab>
+
+            <pa:tab icon="people" title="#{bundle['contacts.title']}"
+                    rendered="#{usersBean.currentUser.isPermitted('showCompagnies') or usersBean.currentUser.isPermitted('showContacts')}">
+                <h:form id="menu-contacts">
+                    <pa:menu widgetVar="me">
+                        <p:menuitem id="um_Company" value="#{bundle['company.title']}" icon="&#xE871;"
+                                    rendered="#{usersBean.currentUser.isPermitted('showCompagnies')}"
+                                    outcome="/app/company"/>
+                        <p:menuitem id="um_Contacts" value="#{bundle['contacts.title']}" icon="&#xE871;"
+                                    rendered="#{usersBean.currentUser.isPermitted('showContacts')}"
+                                    outcome="/app/contacts"/>
+                    </pa:menu>
+                </h:form>
+            </pa:tab>
+
+            <pa:tab icon="business" title="#{bundle['menu.sales']}"
+                    rendered="#{usersBean.currentUser.isPermitted('showTransactions') or usersBean.currentUser.isPermitted('showTasks') }">
+                <h:form id="menu-task">
+                    <pa:menu widgetVar="me">
+                        <p:menuitem id="um_Transactions" value="#{bundle['transactions.title']}" icon="&#xE871;"
+                                    rendered="#{usersBean.currentUser.isPermitted('showTransactions')}"
+                                    outcome="/app/transactions"/>
+                        <p:menuitem id="um_allTasks" value="#{bundle['tasks.title']}" icon="&#xE871;"
+                                    rendered="#{usersBean.currentUser.isPermitted('showTasks')}"
+                                    outcome="/app/alltasks"/>
+                    </pa:menu>
+                </h:form>
+            </pa:tab>
+
+            <pa:tab icon="receipt" title="#{bundle['menu.services']}"
+                    rendered="#{usersBean.currentUser.isPermitted('showVouchers')}">
+                <h:form id="menu-service">
+                    <pa:menu widgetVar="me">
+                        <p:menuitem id="um_Vouchers" value="#{bundle['vouchers.title']}" icon="&#xE871;"
+                                    rendered="#{usersBean.currentUser.isPermitted('showVouchers')}"
+                                    outcome="/app/vouchers"/>
+                    </pa:menu>
+                </h:form>
+            </pa:tab>
+
+            <pa:tab icon="build" title="#{bundle['menu.appSettings']}"
+                    rendered="#{usersBean.currentUser.isPermitted('showJobTitles') or usersBean.currentUser.isPermitted('showBranchActivities') or usersBean.currentUser.isPermitted('showTaskTypes') or usersBean.currentUser.isPermitted('showConversations')}">
+                <h:form id="menu-adminBuild">
+                    <pa:menu widgetVar="me">
+                        <p:menuitem id="um_JobTitles" value="#{bundle['jobTitles.title']}" icon="&#xE871;"
+                                    outcome="/app/jobtitles"
+                                    rendered="#{usersBean.currentUser.isPermitted('showJobTitles')}"/>
+                        <p:menuitem id="um_BranchActivities" value="#{bundle['branchActivities.title']}" icon="&#xE871;"
+                                    outcome="/app/branchactivities"
+                                    rendered="#{usersBean.currentUser.isPermitted('showBranchActivities')}"/>
+                        <p:menuitem id="um_TaskTypes" value="#{bundle['taskTypes.title']}" icon="&#xE871;"
+                                    outcome="/app/tasktypes"
+                                    rendered="#{usersBean.currentUser.isPermitted('showTaskTypes')}"/>
+                        <p:menuitem id="um_ConversationsList" value="#{bundle['conversationList']}" icon="&#xE871;"
+                                    rendered="#{usersBean.currentUser.isPermitted('showConversations')}"
+                                    outcome="/app/conversationsList"/>
+                    </pa:menu>
+                </h:form>
+            </pa:tab>
+        </pa:tabMenu>
+    </div>
+
+</ui:composition>

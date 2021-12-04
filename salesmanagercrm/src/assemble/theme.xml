@@ -1,0 +1,70 @@
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+    <id>theme</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-blue</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-blue</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-blue-grey</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-blue-grey</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-cyan</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-cyan</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-dark-blue</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-dark-blue</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-dark-green</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-dark-green</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-deep-purple</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-deep-purple</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-green</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-green</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-indigo</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-indigo</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-light-blue</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-light-blue</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/resources/primefaces-barcelona-teal</directory>
+            <outputDirectory>/META-INF/resources/primefaces-barcelona-teal</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/webapp/WEB-INF</directory>
+            <outputDirectory>/META-INF/</outputDirectory>
+            <includes>
+                <include>faces-config.xml</include>
+                <include>primefaces-barcelona.taglib.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>org/primefaces/barcelona/component/*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
+</assembly>

@@ -1,0 +1,181 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs"
+                xmlns:p="http://primefaces.org/ui"
+                template="../WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">#{bundle['menu.dashboard']}</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+
+            //<![CDATA[
+            function skinBar() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#64B5F6', '#FFD54F'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#F5F5F5',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    borderWidth: 0.1,
+                    borderColor: 'bdbdbd',
+                    rendererOptions: {
+                        textColor: '#666F77'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    renderer: $.jqplot.BarRenderer,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                };
+            }
+
+            //]]>
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+
+        <f:metadata>
+            <f:viewAction action="#{companiesBean.countActiveCompaniesEntity}"/>
+            <f:viewAction action="#{companiesBean.calculatePercentCompanies}"/>
+            <f:viewAction action="#{contactsBean.countActiveContactsEntity}"/>
+            <f:viewAction action="#{contactsBean.calculatePercentContact}"/>
+            <f:viewAction action="#{transactionsBean.countActiveTransactionsEntity}"/>
+            <f:viewAction action="#{transactionsBean.calculPercentTransactionConclueAnnule}"/>
+            <f:viewAction action="#{vouchersBean.countActiveVouchersEntity}"/>
+            <f:viewAction action="#{vouchersBean.calculPercentVouchers}"/>
+            <f:viewAction action="#{conversationsBean.get10convers}"/>
+            <f:viewAction action="#{conversationsBean.setParamType(false)}"/>
+            <f:viewAction action="#{tasksBean.listEntities}"/>
+            <f:viewAction action="#{tasksBean.setCalendar}"/>
+            <f:viewAction action="#{tasksBean.listEntitiesDueToday}"/>
+            <f:viewAction action="#{contactsBean.findAllActiveContacts}"/>
+            <f:viewAction action="#{companiesBean.findAllActiveCompanies}"/>
+        </f:metadata>
+
+
+        <div class="ui-g dashboard">
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="ui-g card overview-box overview-box-1">
+                    <span class="overview-box-name">#{bundle['company.numberActiveCompany']}</span>
+                    <span class="overview-box-count">#{companiesBean.countActiveCompanies}</span>
+                    <h:outputText class="overview-box-badge" id="countCompanies"
+                                  value="#{companiesBean.percentActiveCompaniesByAllCompanies}">
+                        <f:convertNumber type="percent"
+                                         maxIntegerDigits="4"
+                                         maxFractionDigits="0"/>
+                    </h:outputText>
+                    <p:tooltip id="toolTipCompaniesPercent" for="countCompanies"
+                               value="#{bundle['company.percentValue']}" position="bottom" showEffect="clip"
+                               hideEffect="fold"/>
+                    <p:graphicImage name="images/dashboard/chart-1.svg" library="barcelona-layout"/>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="ui-g card overview-box overview-box-2">
+                    <span class="overview-box-name">#{bundle['contacts.numberActiveContacts']}</span>
+                    <span class="overview-box-count">#{contactsBean.countActiveContacts}</span>
+                    <h:outputText class="overview-box-badge" id="countContacts"
+                                  value="#{contactsBean.percentActiveContactsByAllContact}">
+                        <f:convertNumber type="percent"
+                                         maxIntegerDigits="4"
+                                         maxFractionDigits="0"/>
+                    </h:outputText>
+                    <p:tooltip id="toolTipContactsPercent" for="countContacts"
+                               value="#{bundle['contacts.percentValue']}" position="bottom" showEffect="clip"
+                               hideEffect="fold"/>
+                    <p:graphicImage name="images/dashboard/chart-2.svg" library="barcelona-layout"/>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="ui-g card overview-box overview-box-3">
+                    <span class="overview-box-name">#{bundle['transaction.numberActiveTransactions']}</span>
+                    <span class="overview-box-count">#{transactionsBean.countActiveTransactions}</span>
+                    <span class="overview-box-badge">
+                        <h:outputText id="focusTransaction"
+                                      value="#{transactionsBean.percentActiveTransactionsByPhase}">
+                            <f:convertNumber maxFractionDigits="2" maxIntegerDigits="4" type="percent"/>
+                        </h:outputText>
+                       <p:tooltip for="focusTransaction" value="#{bundle['transaction.percentConclueAnnule']}"
+                                  showEffect="clip"
+                                  hideEffect="fold" position="bottom"/>
+                    </span>
+                    <p:graphicImage name="images/dashboard/chart-3.svg" library="barcelona-layout"/>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="ui-g card overview-box overview-box-4">
+                    <span class="overview-box-name">#{bundle['vouchers.numberActiveVouchers']}</span>
+                    <span class="overview-box-count">#{vouchersBean.countActiveVouchers}</span>
+                    <span class="overview-box-badge">
+                        <h:outputText id="focusVoucher" value="#{vouchersBean.percentActiveVouchersByStatus}">
+                            <f:convertNumber maxFractionDigits="2" maxIntegerDigits="4" type="percent"/>
+                        </h:outputText>
+                       <p:tooltip for="focusVoucher" value="#{bundle['vouchers.percent']}"
+                                  showEffect="clip"
+                                  hideEffect="fold" position="bottom"/>
+                    </span>
+                    <p:graphicImage name="images/dashboard/chart-4.svg" library="barcelona-layout"/>
+                </div>
+            </div>
+
+            <div class="ui-g-12 ui-lg-4">
+                <div class="user-card ui-shadow-content taskDashboard">
+                    <div class="user-card-header">
+                        <p:graphicImage name="images/dashboard/user-card-header.png" library="barcelona-layout"/>
+                    </div>
+                    <div class="user-card-content taskDashboard">
+
+                        <div class="user-card-name">
+                            <span>#{usersBean.usersEntity.firstname} #{usersBean.usersEntity.lastname}</span>
+
+                        </div>
+                        <div class="user-card-name">
+                            <span>#{bundle['tasks.tasksDueToday']}</span>
+                        </div>
+
+                        <div class="user-detail">
+                            <fxs:dashboardTaskToDay id="dashboardTaskToDay"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui-g-12 ui-lg-8 chat">
+                <fxs:conversation id="conversation"/>
+            </div>
+
+
+            <div class="ui-g-12 ui-lg-2 contacts">
+                <p:panel header="#{bundle['company.title']}" style="min-height:600px" styleClass="ui-shadow-content">
+                    <fxs:dashboardCompanies/>
+                </p:panel>
+            </div>
+            <div class="ui-g-12 ui-lg-2 contacts">
+                <p:panel header="#{bundle['contacts.title']}" style="min-height:600px" styleClass="ui-shadow-content">
+                    <fxs:dashboardContacts/>
+                </p:panel>
+            </div>
+            <div class="ui-g-12 ui-lg-8 task-list">
+                <fxs:dashboardComp1 id="dashboardComp1"/>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

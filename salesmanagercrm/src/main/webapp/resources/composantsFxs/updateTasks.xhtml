@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="updateTasks"
+              displayName="#{bundle['tasks.update']}"
+              shortDescription="#{bundle['tasks.update']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+
+        <div class="ui-g ui-fluid">
+            <h:form id="formUpdateTask">
+
+                <div class="ui-g form-group" style="margin-top:10px;">
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="acTitle" value="#{bundle['title']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inputText id="acTitle" value="#{tasksBean.tasksEntity.title}"
+                                         maxlength="255"
+                                         required="true"
+                                         requiredMessage="#{bundle['task.validator.title']}">
+                                <p:ajax process="@form"
+                                        update="msg detailsRight:updateTasks:formUpdateTask:buttonUpdateTask"
+                                        event="keyup" resetValues="true"/>
+                            </p:inputText>
+                            <label>#{bundle['title']}</label>
+                            <p:message id="msg" for="acTitle"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="taskType"
+                                                                value="#{bundle['tasks.taskType']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <p:selectOneMenu id="taskType"
+                                         value="#{tasksBean.tasksEntity.taskTypesByIdTaskTypes}"
+                                         converter="taskTypeConverter">
+
+                            <f:selectItems value="#{taskTypesBean.taskTypesEntities}"
+                                           var="taskTypesEntities" itemValue="#{taskTypesEntities}"
+                                           itemLabel="#{taskTypesEntities.label}"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="taskPriority" value="#{bundle['priority']}:"/>
+                    </div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <p:selectOneMenu id="taskPriority"
+                                         value="#{tasksBean.tasksEntity.priority}">
+                            <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                           var="enumPriority" itemValue="#{enumPriority}"
+                                           itemLabel="#{enumPriority.label}"/>
+                            <f:validator validatorId="enumPriorityValidator"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="datetime" value="#{bundle['dueDate']}:"/>
+                    </div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:calendar value="#{tasksBean.tasksEntity.endDate}"
+                                        id="datetime" pattern="dd/MM/yyyy HH:mm"
+                                        converterMessage="#{bundle['converter.dateTime']}"
+                                        mindate="#{tasksBean.tasksEntity.creationDate.plusMinutes(1)}">
+                                <p:ajax process="@form"
+                                        update="msgDateTime detailsRight:updateTasks:formUpdateTask:buttonUpdateTask"
+                                        event="valueChange" resetValues="true"/>
+                            </p:calendar>
+                            <label>#{bundle['dueDate']}:</label>
+                            <p:message id="msgDateTime" for="datetime"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="Contact"
+                                                                value="#{bundle['associateWithContact']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:autoComplete id="Contact" value="#{tasksBean.tasksEntity.contactsByIdContacts}"
+                                            completeMethod="#{contactsBean.completeContactsContains}"
+                                            var="Contact"
+                                            itemLabel="#{Contact.lastname.concat(' '.concat(Contact.firstname))}"
+                                            itemValue="#{Contact}"
+                                            dropdown="true"
+                                            converter="#{contactsConverter}"
+                                            groupBy="#{contactsBean.getContactsEntityGroup(Contact)}"
+                                            scrollHeight="250">
+                                <p:ajax process="@form"
+                                        update="msgContact detailsRight:updateTasks:formUpdateTask:buttonUpdateTask"
+                                        event="itemSelect" resetValues="true"/>
+                                <p:ajax process="@form"
+                                        update="msgContact detailsRight:updateTasks:formUpdateTask:buttonUpdateTask"
+                                        event="change" resetValues="true"/>
+                            </p:autoComplete>
+                            <label>#{bundle['associateWithContact']}:</label>
+                            <p:message id="msgContact" for="Contact"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="Company"
+                                                                value="#{bundle['associateWithCompany']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:autoComplete id="Company" value="#{tasksBean.tasksEntity.companiesByIdCompanies}"
+                                            completeMethod="#{companiesBean.completeCompaniesContains}"
+                                            var="Company"
+                                            itemLabel="#{Company.label}"
+                                            itemValue="#{Company}"
+                                            dropdown="true"
+                                            converter="#{companiesConverter}"
+                                            groupBy="#{companiesBean.getCompaniesEntityGroup(Company)}"
+                                            scrollHeight="250">
+                                <p:ajax process="@form"
+                                        update="msgCompany detailsRight:updateTasks:formUpdateTask:buttonUpdateTask"
+                                        event="itemSelect" resetValues="true"/>
+                                <p:ajax process="@form"
+                                        update="msgCompany detailsRight:updateTasks:formUpdateTask:buttonUpdateTask"
+                                        event="change" resetValues="true"/>
+                            </p:autoComplete>
+                            <label>#{bundle['associateWithCompany']}:</label>
+                            <p:message id="msgCompany" for="Company"/>
+                        </h:panelGroup>
+                    </div>
+
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="description"
+                                                                value="#{bundle['tasks.description']}:"/></div>
+                    <div class="ui-g-12 ui-lg-10">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inputTextarea value="#{tasksBean.tasksEntity.description}" id="description"
+                                             rows="6"
+                                             maxlength="255"
+                                             autofocus="true"
+                                             autoResize="false"/>
+                            <label>#{bundle['descriptionHolder']}:</label>
+                            <p:message id="msgDescription" for="description"/>
+                        </h:panelGroup>
+                    </div>
+
+                </div>
+                <div class="ui-g-12 ui-lg-12">
+                    <div align="right" class="mgin-top">
+                        <p:commandButton style="width:auto;margin-bottom:10px;"
+                                         update="@(form) msgs"
+                                         id="buttonUpdateTask"
+                                         oncomplete="if (!args.validationFailed){PF('updateDialogTask').hide()}; PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                         disabled="#{facesContext.validationFailed or empty tasksBean.tasksEntity.title}"
+                                         value="#{bundle['update']}"
+                                         resetValues="true"
+                                         action="#{tasksBean.updateEntity}">
+                            <f:param name="typeEntities" value="all"/>
+                        </p:commandButton>
+                    </div>
+                </div>
+                <p:hotkey bind="esc" handler="PF('updateDialogTask').hide()"/>
+            </h:form>
+        </div>
+    </f:view>
+</cc:implementation>
+</html>

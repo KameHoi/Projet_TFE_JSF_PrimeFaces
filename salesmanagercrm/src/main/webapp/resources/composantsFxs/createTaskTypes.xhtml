@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="createTaskTypes"
+              displayName="#{bundle['taskTypes.create']}"
+              shortDescription="#{bundle['taskTypes.create']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+
+        <h:form id="createTaskTypesForm">
+
+            <p:outputPanel id="taskTypeManageContent" class="ui-fluid">
+                <h:panelGroup styleClass="md-inputfield jobtitlesFullDisplay">
+                    <p:inputText id="title" value="#{taskTypesBean.taskTypesEntity.label}"
+                                 required="true"
+                                 maxlength="255"
+                                 requiredMessage="#{bundle['taskTypes.validator.title']}">
+                        <p:ajax process="@form"
+                                update="msg listAllTaskTypes:createTaskTypes:createTaskTypesForm:buttonCreateTaskTypes"
+                                event="keyup" resetValues="true"/>
+                    </p:inputText>
+                    <label>#{bundle['title']} :</label>
+                    <p:message for="title" id="msg" closable="true" display="message"/>
+                </h:panelGroup>
+            </p:outputPanel>
+            <div align="right" class="mgin-top">
+                <p:commandButton style="width:auto;"
+                                 id="buttonCreateTaskTypes"
+                                 update="@(form) msgs"
+                                 disabled="#{facesContext.validationFailed or empty taskTypesBean.taskTypesEntity.label}"
+                                 oncomplete="if (!args.validationFailed){PF('createDialog').hide()}; PF('displayAllEntities').filter(); "
+                                 value="#{bundle['save']}"
+                                 resetValues="true"
+                                 action="#{taskTypesBean.saveEntity}"
+                >
+                </p:commandButton>
+            </div>
+            <p:hotkey bind="esc" handler="PF('createDialog').hide()"/>
+        </h:form>
+    </f:view>
+</cc:implementation>
+</html>

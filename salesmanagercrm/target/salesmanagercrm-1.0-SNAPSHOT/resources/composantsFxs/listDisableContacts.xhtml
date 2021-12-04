@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+<cc:interface name="listContacts"
+              displayName="#{bundle['contacts.contactsDisable']}"
+              shortDescription="#{bundle['contacts.contactsDisable']}"/>
+<cc:implementation>
+   <f:view>
+      <p:dataTable var="contacts" value="#{contactsBean.contactsEntityDisableList}" rows="10"
+                   selectionMode="single" reflow="true"
+                   id="contactsDisableDatatable" rowKey="#{contacts.id}"
+                   widgetVar="displayAllDisableContacts"
+                   paginator="true" styleClass="dataTable-margin-top"
+                   selection="#{contactsBean.selectedContactsEntity}"
+                   filteredValue="#{contactsBean.contactEntitiesFiltered}"
+                   emptyMessage="#{bundle['contacts.contactNotFound']}"
+                   paginatorPosition="bottom"
+                   rowsPerPageTemplate="10,20,50">
+
+         <f:facet name="header">
+            <p:outputPanel>
+               <p:tooltip/>
+               <h:outputText value="#{bundle['search']} : "/>
+               <p:inputText id="globalFilter" onkeyup="PF('displayAllDisableContacts').filter()"
+                            pt:data-tooltip="#{bundle['contacts.globalSearchToolTip']}"
+                            style="width:150px" placeholder="#{bundle['search']}"/>
+            </p:outputPanel>
+         </f:facet>
+
+         <p:column styleClass="contactsLabel" headerText="#{bundle['contacts.label']}" sortBy="#{contacts.firstname}"
+                   filterBy="#{contacts.firstname} #{contacts.lastname}" filterMatchMode="contains">
+            <p:link outcome="contactDetails">
+               <h:outputText value="#{contacts.firstname} #{contacts.lastname}"/>
+               <f:param name="contactID" value="#{contacts.id}"/>
+            </p:link>
+            <p:watermark for="@(.contactsLabel)" value="#{bundle['contacts.searchByContacts']}"/>
+         </p:column>
+
+         <p:column headerText="#{bundle['contacts.phonenumber']}" sortBy="#{contacts.phoneNumber}">
+            <h:outputText value="#{ empty contacts.phoneNumber ? '--' : contacts.phoneNumber}"/>
+         </p:column>
+
+         <p:column styleClass="contactsEmail" headerText="#{bundle['contacts.email']}" sortBy="#{contacts.email}"
+                   filterBy="#{contacts.email}" filterMatchMode="contains">
+            <h:outputText value="#{empty contacts.email ? '--' : contacts.email}"/>
+            <p:watermark for="@(.contactsEmail)" value="#{bundle['contacts.searchByContactsEmail']}"/>
+         </p:column>
+
+         <p:column headerText="#{bundle['company.registerDate']}" sortBy="#{contacts.registerDate}">
+            <h:outputText value="#{contacts.registerDate}">
+               <f:convertDateTime type="localDate"
+                                  pattern="dd/MM/yy ' #{bundle['at']} ' HH:mm"/>
+            </h:outputText>
+         </p:column>
+
+         <p:column rendered="#{usersBean.currentUser.isPermitted('deleteContacts')}" colspan="1" width="70">
+            <p:commandLink update="@(form) msgs"
+                           action="#{contactsBean.activateContactbyIdContact}"
+                           rendered="#{usersBean.currentUser.isPermitted('deleteContacts')}">
+               <i class="ui-icon ui-icon-update"/>
+               <f:param name="contactsID" value="#{contacts.id}"/>
+            </p:commandLink>
+         </p:column>
+
+      </p:dataTable>
+   </f:view>
+</cc:implementation>
+</html>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+<cc:interface name="listBranchActivities"
+              displayName="#{bundle['branchActivities.listBranchActivities']}"
+              shortDescription="#{bundle['branchActivities.listBranchActivities']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <p:dataTable var="branchActivities" value="#{branchActivitiesBean.branchActivitiesEntityList}" rows="10"
+                     selectionMode="single" reflow="true"
+                     widgetVar="displayAllBranchActivities"
+                     rowKey="#{branchActivities.id}"
+                     id="branchActivitiesDatatable"
+                     paginatorPosition="bottom"
+                     selection="#{branchActivitiesBean.selectedBranchActivitiesEntity}"
+                     filteredValue="#{branchActivitiesBean.branchActivitiesEntitiesFiltered}"
+                     emptyMessage="#{bundle['branchActivities.branchActivitiesNotFound']}"
+                     paginator="true" styleClass="dataTable-margin-top"
+                     rowsPerPageTemplate="10,20,50">
+
+            <p:column headerText="#{bundle['branchActivities.title']}" filterBy="#{branchActivities.label}"
+                      filterMatchMode="contains" sortBy="#{branchActivities.label}" colspan="10"
+                      styleClass="branchActivitiesLabel">
+                <h:outputText value="#{branchActivities.label}"/>
+                <p:watermark value="#{bundle['branchActivities.search']}" for="@(.branchActivitiesLabel)"/>
+            </p:column>
+            <p:column colspan="1" width="70"
+                      rendered="#{usersBean.currentUser.isPermitted('updateBranchActivities')}">
+                <p:commandLink icon="ui-icon-edit" styleClass="NavyButton" update="@(form)"
+                               rendered="#{usersBean.currentUser.isPermitted('updateBranchActivities')}"
+                               resetValues="true"
+                               onclick="PF('updateBranchActivitiesModal').show();"
+                               action="#{branchActivitiesBean.showModalUpdate}">
+                    <i class="ui-icon ui-icon-create"/>
+                    <f:param name="id" value="#{branchActivities.id}"/>
+                </p:commandLink>
+            </p:column>
+        </p:dataTable>
+
+    </f:view>
+</cc:implementation>
+</html>

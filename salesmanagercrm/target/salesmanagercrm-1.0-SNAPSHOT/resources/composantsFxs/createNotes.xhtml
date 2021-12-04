@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="createNotes"
+              displayName="#{bundle['notes.create']}"
+              shortDescription="#{bundle['notes.create']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+
+        <div class="ui-g ui-fluid">
+            <h:form id="formCreateNotes">
+                <div class="ui-g form-group" style="margin-top:10px;">
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="titleNote" value="#{bundle['notes.title']} :"/>
+                    </div>
+                    <div class="ui-g-12 ui-lg-10">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inputTextarea id="titleNote" value="#{notesBean.notesEntity.message}"
+                                             rows="4" cols="100"
+                                             required="true"
+                                             requiredMessage="#{bundle['notes.validator.message']}"
+                                             maxlength="255"
+                                             autoResize="false">
+                                <p:ajax update="msg detailsRight:createNotes:formCreateNotes:buttonSaveEntityNotes"
+                                        resetValues="true" event="keyup"/>
+                            </p:inputTextarea>
+                            <label>#{bundle['notes.messageHolder']}</label>
+                            <p:message id="msg" for="titleNote"/>
+                        </h:panelGroup>
+                    </div>
+
+                </div>
+                <div class="ui-g-12 ui-lg-12">
+                    <div align="right" class="mgin-top">
+                        <p:commandButton style="width:auto;margin-bottom:10px;"
+                                         id="buttonSaveEntityNotes"
+                                         disabled="#{facesContext.validationFailed or empty notesBean.notesEntity.message}"
+                                         value="#{bundle['notes.save']}"
+                                         oncomplete="if (!args.validationFailed){PF('createDialogNotes').hide()}"
+                                         resetValues="true"
+                                         update="detailsRight:formTabView detailsRight:createNotes:formCreateNotes msgs"
+                                         action="#{notesBean.saveEntity}"/>
+                    </div>
+                </div>
+                <p:hotkey bind="esc" handler="PF('createDialogNotes').hide()"/>
+            </h:form>
+        </div>
+    </f:view>
+</cc:implementation>
+</html>

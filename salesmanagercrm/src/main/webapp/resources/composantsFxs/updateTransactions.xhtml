@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="updateTransactions"
+              displayName="#{bundle['transactions.update']}"
+              shortDescription="#{bundle['transactions.update']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <div class="ui-g ui-fluid">
+            <h:form id="formUpdateTransaction">
+
+                <div class="ui-g form-group" style="margin-top:10px;">
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="titleUpdate" value="#{bundle['title']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inplace rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}">
+                                <p:inputText id="titleUpdate" value="#{transactionsBean.transactionsEntity.title}"
+                                             required="true"
+                                             maxlength="255"
+                                             requiredMessage="#{bundle['transactions.validator.title']}">
+                                    <p:ajax process="@form"
+                                            update="msg listAllTransactions:updateTransactions:formUpdateTransaction:buttonActionUpdateTransaction"
+                                            resetValues="true" event="keyup"/>
+                                </p:inputText>
+                                <label>#{bundle['title']} :</label>
+                            </p:inplace>
+                            <p:message id="msg" for="titleUpdate"/>
+
+                            <p:outputLabel rendered="#{not usersBean.currentUser.isPermitted('updateTransactions')}"
+                                           value="#{transactionsBean.transactionsEntity.title}"/>
+                        </h:panelGroup>
+                    </div>
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="datetimeCreation"
+                                                                value="#{bundle['transactions.creationDate']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <h:outputLabel styleClass="fontStyleItalic" id="datetimeCreation"
+                                           value="#{transactionsBean.transactionsEntity.creationDate}">
+                                <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
+                            </h:outputLabel>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="phase" value="#{bundle['transactions.phase']}:"/>
+                    </div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <p:inplace rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}"
+                                   emptyLabel="..."
+                                   label="#{transactionsBean.transactionsEntity.transactionPhasesByIdTransactionPhases.label}"
+                                   effectSpeed="fast" event="click">
+                            <p:selectOneMenu id="phase"
+                                             value="#{transactionsBean.transactionsEntity.transactionPhasesByIdTransactionPhases}"
+                                             converter="transactionPhasesConverter">
+
+                                <f:selectItems value="#{transactionPhasesBean.transactionPhasesEntities}"
+                                               var="transactionPhasesEntities" itemValue="#{transactionPhasesEntities}"
+                                               itemLabel="#{transactionPhasesEntities.label}"/>
+                            </p:selectOneMenu>
+                        </p:inplace>
+
+                        <h:panelGroup styleClass="md-inputfield"
+                                      rendered="#{not usersBean.currentUser.isPermitted('updateTransactions')}">
+                            <p:outputLabel
+                                    value="#{transactionsBean.transactionsEntity.transactionPhasesByIdTransactionPhases.label}"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="amount" value="#{bundle['amount']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inplace rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}"
+                                       emptyLabel="..." label="#{transactionsBean.transactionsEntity.amount} €">
+                                <p:inputNumber id="amount" value="#{transactionsBean.transactionsEntity.amount}"
+                                               symbol=" €"
+                                               minValue="0"
+                                               symbolPosition="s"
+                                               decimalSeparator="," thousandSeparator=".">
+                                    <p:ajax update="amount"/>
+                                </p:inputNumber>
+                                <label>9.999,99 €</label>
+                            </p:inplace>
+                            <p:message id="msgAmount" for="amount"/>
+                            <p:outputLabel rendered="#{not usersBean.currentUser.isPermitted('updateTransactions')}"
+                                           value="#{transactionsBean.transactionsEntity.amount} €"/>
+                        </h:panelGroup>
+                    </div>
+
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="datetime" value="#{bundle['dueDate']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inplace rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}"
+                                       emptyLabel="..."
+                                       label="#{transactionsBean.transactionsEntity.endDate.dayOfMonth}/#{transactionsBean.transactionsEntity.endDate.monthValue}/#{transactionsBean.transactionsEntity.endDate.year}">
+                                <p:calendar value="#{transactionsBean.transactionsEntity.endDate}"
+                                            converterMessage="#{bundle['converter.dateTime']}"
+                                            id="datetime" pattern="dd/MM/yyyy HH:mm"
+                                            mindate="#{transactionsBean.transactionsEntity.creationDate}">
+                                    <p:ajax process="@form"
+                                            update="msgDateTime listAllTransactions:updateTransactions:formUpdateTransaction:buttonActionUpdateTransaction"
+                                            event="valueChange" resetValues="true"/>
+                                </p:calendar>
+                                <label>#{bundle['dueDate']}:</label>
+                            </p:inplace>
+                            <p:message id="msgDateTime" for="datetime"/>
+                            <p:outputLabel rendered="#{not usersBean.currentUser.isPermitted('updateTransactions')}"
+                                           value="#{transactionsBean.transactionsEntity.endDate}">
+                                <f:convertDateTime type="localDate"
+                                                   pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                            </p:outputLabel>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="type" value="#{bundle['transactions.type']}:"/>
+                    </div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <p:inplace rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}"
+                                   emptyLabel="..."
+                                   label="#{transactionsBean.transactionsEntity.transactionTypesByIdTransactionTypes.label}"
+                                   effectSpeed="fast" event="click">
+                            <p:selectOneMenu id="type"
+                                             value="#{transactionsBean.transactionsEntity.transactionTypesByIdTransactionTypes}"
+                                             converter="transactionTypesConverter">
+
+                                <f:selectItems value="#{transactionTypesBean.transactionTypesEntities}"
+                                               var="transactionTypesEntities" itemValue="#{transactionTypesEntities}"
+                                               itemLabel="#{transactionTypesEntities.label}"/>
+                            </p:selectOneMenu>
+                        </p:inplace>
+
+                        <h:panelGroup rendered="#{not usersBean.currentUser.isPermitted('updateTransactions')}"
+                                      styleClass="md-inputfield">
+                            <p:outputLabel
+                                    value="#{transactionsBean.transactionsEntity.transactionTypesByIdTransactionTypes.label}"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="Contact"
+                                                                value="#{bundle['associateWithContact']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inplace rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}"
+                                       emptyLabel="..."
+                                       label="#{transactionsBean.transactionsEntity.contactsByIdContacts.lastname.concat(' '.concat(transactionsBean.transactionsEntity.contactsByIdContacts.firstname))}">
+                                <p:autoComplete id="Contact"
+                                                value="#{transactionsBean.transactionsEntity.contactsByIdContacts}"
+                                                completeMethod="#{contactsBean.completeContactsContains}"
+                                                var="Contact"
+                                                itemLabel="#{Contact.lastname.concat(' '.concat(Contact.firstname))}"
+                                                itemValue="#{Contact}"
+                                                dropdown="true"
+                                                converter="#{contactsConverter}"
+                                                groupBy="#{contactsBean.getContactsEntityGroup(Contact)}"
+                                                scrollHeight="250">
+                                    <p:ajax process="@form"
+                                            update="msgContact listAllTransactions:updateTransactions:formUpdateTransaction:buttonActionUpdateTransaction"
+                                            event="itemSelect" resetValues="true"/>
+                                    <p:ajax process="@form"
+                                            update="msgContact listAllTransactions:updateTransactions:formUpdateTransaction:buttonActionUpdateTransaction"
+                                            event="change" resetValues="true"/>
+                                </p:autoComplete>
+                                <label>#{bundle['contact']}:</label>
+                            </p:inplace>
+                            <p:message id="msgContact" for="Contact"/>
+                            <p:outputLabel rendered="#{not usersBean.currentUser.isPermitted('updateTransactions')}"
+                                           value="#{transactionsBean.transactionsEntity.contactsByIdContacts.lastname.concat(' '.concat(transactionsBean.transactionsEntity.contactsByIdContacts.firstname))}"/>
+                        </h:panelGroup>
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-2"><p:outputLabel for="Company"
+                                                                value="#{bundle['associateWithCompany']}:"/></div>
+                    <div class="ui-g-12 ui-lg-4">
+                        <h:panelGroup styleClass="md-inputfield">
+                            <p:inplace rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}"
+                                       emptyLabel="..."
+                                       label="#{transactionsBean.transactionsEntity.companiesByIdCompanies.label}">
+                                <p:autoComplete id="Company"
+                                                value="#{transactionsBean.transactionsEntity.companiesByIdCompanies}"
+                                                completeMethod="#{companiesBean.completeCompaniesContains}"
+                                                var="Company"
+                                                itemLabel="#{Company.label}"
+                                                itemValue="#{Company}"
+                                                dropdown="true"
+                                                converter="#{companiesConverter}"
+                                                groupBy="#{companiesBean.getCompaniesEntityGroup(Company)}"
+                                                scrollHeight="250">
+                                    <p:ajax process="@form"
+                                            update="msgCompany listAllTransactions:updateTransactions:formUpdateTransaction:buttonActionUpdateTransaction"
+                                            event="itemSelect" resetValues="true"/>
+                                    <p:ajax process="@form"
+                                            update="msgCompany listAllTransactions:updateTransactions:formUpdateTransaction:buttonActionUpdateTransaction"
+                                            event="change" resetValues="true"/>
+                                </p:autoComplete>
+                                <label>#{bundle['company']}:</label>
+                            </p:inplace>
+                            <p:message id="msgCompany" for="Company"/>
+                            <p:outputLabel rendered="#{not usersBean.currentUser.isPermitted('updateTransactions')}"
+                                           value="#{transactionsBean.transactionsEntity.companiesByIdCompanies.label}"/>
+                        </h:panelGroup>
+                    </div>
+
+                </div>
+                <div class="ui-g-12 ui-lg-12">
+                    <div align="right" class="mgin-top"
+                         id="divActionUpdateTransaction">
+                        <p:menuButton value="#{bundle['actions']}" id="buttonActionUpdateTransaction"
+                                      rendered="#{usersBean.currentUser.isPermitted('showTransactionHistories') or usersBean.currentUser.isPermitted('updateTransactions') or usersBean.currentUser.isPermitted('deleteTransactions')}">
+                            <p:menuitem icon="ui-icon-check"
+                                        rendered="#{usersBean.currentUser.isPermitted('updateTransactions')}"
+                                        id="buttonSaveUpdateTransaction"
+                                        disabled="#{facesContext.validationFailed or empty transactionsBean.transactionsEntity.title }"
+                                        value="#{bundle['save']}"
+                                        update="@(form) msgs"
+                                        resetValues="true"
+                                        oncomplete="if (!args.validationFailed){PF('dlg2').hide()}; PF('displayAllEntities').filter();"
+                                        action="#{transactionsBean.updateEntity}"/>
+
+                            <p:menuitem icon="ui-icon-delete"
+                                        rendered="#{usersBean.currentUser.isPermitted('deleteTransactions')}"
+                                        id="buttonDeleteUpdateTransaction"
+                                        update="@(form) msgs"
+                                        value="#{bundle['delete']}"
+                                        action="#{transactionsBean.deleteEntity}"
+                                        oncomplete="PF('displayAllEntities').filter(); PF('dlg2').hide()"
+                            >
+                                <p:confirm header="#{bundle['confirmation']}" message="#{bundle['areYouSure']}"
+                                           icon="fa fa-warning"/>
+                                <f:param name="idTransaction" value="#{transactionsBean.transactionsEntity.id}"/>
+                            </p:menuitem>
+
+                            <p:menuitem icon="ui-icon-history"
+                                        rendered="#{usersBean.currentUser.isPermitted('showTransactionHistories')}"
+                                        id="buttonHistoryUpdateTransaction"
+                                        outcome="transactionDetails"
+                                        value="#{bundle['viewHistory']}">
+                                <f:param name="idTransaction" value="#{transactionsBean.transactionsEntity.id}"/>
+                            </p:menuitem>
+                        </p:menuButton>
+                    </div>
+
+                </div>
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                    <p:commandButton value="#{bundle['yes']}" type="button"
+                                     styleClass="ui-confirmdialog-yes GreenButton"
+                                     icon="ui-icon-check"/>
+                    <p:commandButton value="#{bundle['no']}" type="button"
+                                     styleClass="ui-confirmdialog-no RedButton"
+                                     icon="ui-icon-close"/>
+                </p:confirmDialog>
+                <p:hotkey bind="esc" handler="PF('dlg2').hide()"/>
+            </h:form>
+        </div>
+    </f:view>
+</cc:implementation>
+</html>

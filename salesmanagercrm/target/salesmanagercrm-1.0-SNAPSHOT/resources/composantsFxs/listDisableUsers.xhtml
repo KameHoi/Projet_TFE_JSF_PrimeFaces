@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+>
+<cc:interface name="listDisableUsers"
+              displayName="#{bundle['users.userActive']}"
+              shortDescription="#{bundle['users.userActive']}"/>
+<cc:implementation>
+    <f:view>
+
+
+        <p:dataTable paginator="true" rows="10"
+                     selection="#{usersBean.selectedUserEntity}" selectionMode="single"
+                     paginatorPosition="bottom"
+                     var="user"
+                     rowKey="#{user.id}"
+                     emptyMessage="#{bundle['users.notFound']}"
+                     rowsPerPageTemplate="10,20,50"
+                     widgetVar="displayAllEntitiesInactive"
+                     filteredValue="#{usersBean.usersEntitiesDisableFiltered}"
+                     rendered="#{usersBean.usersEntities.size() eq 0 ? false : true}"
+                     value="#{usersBean.usersEntitiesDisable}"
+                     id="dataInactive">
+
+            <p:column width="500" headerText="#{bundle['user.username']}"
+                      sortBy="#{user.username}"
+                      filterBy="#{user.username}"
+                      filterMatchMode="contains">
+                <p:commandLink id="titleAllDesable" value="#{user.username}"
+                               onclick="PF('dlg2').show();"
+                               update="@(form) "
+                >
+                    <f:param name="idEntity" value="#{user.id}"/>
+                </p:commandLink>
+            </p:column>
+
+            <p:column headerText="#{bundle['firstname']}"
+                      sortBy="#{user.firstname}"
+                      filterBy="#{user.firstname}"
+                      filterMatchMode="contains"
+            >
+                <h:outputText value="#{user.firstname}"/>
+            </p:column>
+
+            <p:column headerText="#{bundle['lastname']}"
+                      sortBy="#{user.lastname}"
+                      filterBy="#{user.lastname}"
+                      filterMatchMode="contains">
+                <h:outputText value="#{user.lastname}">
+
+                </h:outputText>
+            </p:column>
+
+            <p:column headerText="#{bundle['email']}"
+                      sortBy="#{user.email}">
+                <h:outputText value="#{user.email}">
+
+                </h:outputText>
+            </p:column>
+
+            <p:column headerText="#{bundle['role']}"
+                      sortBy="#{user.rolesByIdRoles.label}"
+                      filterBy="#{user.rolesByIdRoles.label}"
+                      filterMatchMode="contains">
+                <h:outputText value="#{user.rolesByIdRoles.label}">
+                    <f:convertNumber currencySymbol="€" type="currency"/>
+                </h:outputText>
+            </p:column>
+
+
+            <p:column colspan="1" width="70">
+                <p:commandLink
+                        actionListener="#{usersBean.initialiseDialogUserId(user.id)}"
+                        rendered="#{usersBean.currentUser.isPermitted('updateUsers')}"
+                        oncomplete="PF('updateUser').show();return false;"
+                        update="@(form) msgs"
+                        resetValues="true"
+                        styleClass="NavyButton">
+                    <i class="ui-icon ui-icon-create"/>
+                </p:commandLink>
+
+
+                <p:commandLink update="formUsers:tabViewUsers msgs"
+                               oncomplete="PF('displayAllEntitiesActive').filter(); PF('displayAllEntitiesInactive').filter();"
+                               rendered="#{usersBean.currentUser.isPermitted('deleteUsers')}"
+                               action="#{usersBean.activate(user.id)}">
+                    <i class="ui-icon ui-icon-update"/>
+                    <f:param name="idEntity" value="#{user.id}"/>
+                    <f:param name="typeEntities" value="all"/>
+                </p:commandLink>
+
+            </p:column>
+
+        </p:dataTable>
+
+
+    </f:view>
+</cc:implementation>
+</html>

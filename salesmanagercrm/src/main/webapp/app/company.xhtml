@@ -1,0 +1,59 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs"
+                template="../WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">#{bundle['company.title']}</ui:define>
+    <ui:define name="content">
+
+        <f:metadata>
+            <f:viewAction action="#{branchActivitiesBean.findAllBranchActivities}"/>
+            <f:viewAction action="#{companyTypesBean.findAllCompanyTypes}"/>
+            <f:viewAction action="#{companiesBean.createNewEntity}"/>
+            <f:viewAction action="#{companiesBean.findAllActiveCompanies}"/>
+        </f:metadata>
+
+        <p:growl id="msgs" skipDetailIfEqualsSummary="true"/>
+
+
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <h1>#{bundle['company.title']}</h1>
+                    <h:form>
+                        <p:commandButton value="#{bundle['company.create']}"
+                                         action="#{companiesBean.createNewEntity}"
+                                         rendered="#{usersBean.currentUser.isPermitted('addCompagnies')}"
+                                         onclick="PF('companyWidgetModal').show();" styleClass="NavyButton"
+                                         resetValues="true"
+                                         update="@(form) msgs">
+                        </p:commandButton>
+                    </h:form>
+
+                    <h:form>
+                        <p:tabView styleClass="mgin-top-10">
+
+                            <p:ajax event="tabChange" update="@form msgs"/>
+
+                            <p:tab id="displayActiveCompany"
+                                   title="#{bundle['company.companyActive']} (#{companiesBean.companiesEntityList.size()})">
+                                <fxs:listCompany id="listCompany"/>
+                            </p:tab>
+
+                            <p:tab id="displayDisableCompany"
+                                   title="#{bundle['company.companyDisable']} #{companiesBean.companiesEntitiesDisableList.size() eq 0 ? '' : '('.concat(companiesBean.companiesEntitiesDisableList.size()).concat(')')}">
+                                <fxs:listDisableCompany id="listDisableCompany"/>
+                            </p:tab>
+
+                        </p:tabView>
+                    </h:form>
+                </div>
+                <fxs:createCompany id="createCompany"/>
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

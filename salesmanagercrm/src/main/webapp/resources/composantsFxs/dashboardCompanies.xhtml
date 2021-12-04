@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite" xmlns:h="http://java.sun.com/jsf/html">
+
+<cc:interface name="dashboardCompanies"
+              displayName="#{bundle['dashboard.title']}"
+              shortDescription="#{bundle['dashboard.title']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <p:dataTable var="companies" value="#{companiesBean.companiesEntityList}" rows="10"
+                     selectionMode="single" reflow="true"
+                     id="companiesDatatable" rowKey="#{companies.id}"
+                     selection="#{companiesBean.selectedCompaniesEntity}"
+                     filteredValue="#{companiesBean.companiesEntitiesFiltered}"
+                     widgetVar="displayAllCompanies"
+                     paginatorPosition="bottom"
+                     emptyMessage="#{bundle['company.companyNotFound']}"
+                     paginator="true" styleClass="dataTable-margin-top">
+
+            <p:column styleClass="companyNameColumn" headerText="#{bundle['company.label']}"
+                      filterBy="#{companies.label}"
+                      filterMatchMode="contains" sortBy="#{companies.label}">
+                <p:link outcome="companydetails">
+                    <h:outputText value="#{companies.label}"/>
+                    <f:param name="companyID" value="#{companies.id}"/>
+                </p:link>
+                <p:watermark for="@(.companyNameColumn)" value="#{bundle['company.searchByCompanies']}"/>
+            </p:column>
+        </p:dataTable>
+
+    </f:view>
+</cc:implementation>
+</html>

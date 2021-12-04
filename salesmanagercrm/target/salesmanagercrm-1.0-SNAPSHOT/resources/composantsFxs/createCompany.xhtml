@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+<cc:interface name="createCompany"
+              displayName="#{bundle['company.create']}"
+              shortDescription="#{bundle['company.create']}"/>
+<cc:implementation>
+    <f:view>
+        <p:dialog
+                header="#{bundle['company.title']}"
+                modal="true"
+                id="companyModal" widgetVar="companyWidgetModal" responsive="true" width="55%">
+            <div class="ui-g ui-fluid">
+                <h:form>
+
+                    <div class="ui-g form-group" style="margin-top:10px;">
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['company.labelName']}" for="labelCompany"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputText id="labelCompany" value="#{companiesBean.companiesEntity.label}"
+                                             required="true"
+                                             requiredMessage="#{bundle['company.labelNotValid']}"
+                                             maxlength="255">
+                                    <p:ajax process="@form" update="validateCompany labelCompanyErrorMsg" event="keyup"
+                                            resetValues="true"/>
+                                </p:inputText>
+                                <label>#{bundle['company.labelName']}</label>
+                                <p:message id="labelCompanyErrorMsg" for="labelCompany"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['company.chooseCompanyType']}" for="companyTypesDisplay"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <p:selectOneMenu id="companyTypesDisplay"
+                                             value="#{companiesBean.companiesEntity.companyTypesByIdCompanyTypes}"
+                                             converter="companyTypesConverter" required="true"
+                                             requiredMessage="#{bundle['company.companiesTypeNotValid']}"
+                                             placeholder="#{bundle['company.chooseCompanyType']}">
+                                <f:selectItems value="#{companyTypesBean.companyTypesEntities}" var="companyTypes"
+                                               itemValue="#{companyTypes}" itemLabel="#{companyTypes.label}"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['company.domainName']}" for="domainName"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputText id="domainName" value="#{companiesBean.companiesEntity.domainName}"
+                                             maxlength="255">
+                                    <f:validator validatorId="companyDomainValidator"/>
+                                    <p:ajax process="@form" update="validateCompany domainNameErrorMsg" event="keyup"
+                                            resetValues="true"/>
+                                </p:inputText>
+                                <label>#{bundle['company.domainName']}</label>
+                                <p:message id="domainNameErrorMsg" for="domainName"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['company.chooseBranchActivity']}"
+                                           for="branchActivitiesDisplay"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:autoComplete id="branchActivitiesDisplay" dropdown="true"
+                                                value="#{companiesBean.companiesEntity.branchActivitiesByIdBranchActivities}"
+                                                completeMethod="#{branchActivitiesBean.completeBranchActivities}"
+                                                var="branchActivities"
+                                                itemLabel="#{branchActivities.label}"
+                                                itemValue="#{branchActivities}"
+                                                converter="branchActivitiesConverter"
+                                                scrollHeight="250">
+                                    <p:ajax process="@form"
+                                            update="validateCompany branchActivitiesDisplayErrorMsg"
+                                            event="itemSelect" resetValues="true"/>
+                                    <p:ajax process="@form"
+                                            update="validateCompany branchActivitiesDisplayErrorMsg"
+                                            event="change" resetValues="true"/>
+                                </p:autoComplete>
+                                <label>#{bundle['company.chooseBranchActivity']}</label>
+                                <p:message for="branchActivitiesDisplay" id="branchActivitiesDisplayErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['company.employessNumber']}" for="employeesNumber"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputNumber id="employeesNumber"
+                                               value="#{companiesBean.companiesEntity.employeesNumber}"
+                                               validatorMessage="#{bundle['company.employeesNumberNotValid']}">
+                                    <f:validateLongRange minimum="0"/>
+                                    <p:ajax process="@form" update="validateCompany employeesNumberErrorMsg"
+                                            event="keyup" resetValues="true"/>
+                                </p:inputNumber>
+                                <label>#{bundle['company.numberLabelPlaceHolder']}</label>
+                                <p:message for="employeesNumber" id="employeesNumberErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['company.revenue']}" for="revenue"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputNumber id="revenue" value="#{companiesBean.companiesEntity.revenue}"
+                                               validatorMessage="#{bundle['company.employeesNumberNotValid']}">
+                                    <f:validateLongRange minimum="0"/>
+                                    <p:ajax process="@form" update="validateCompany revenueErrorMsg" event="keyup"
+                                            resetValues="true"/>
+                                </p:inputNumber>
+                                <label>#{bundle['company.numberLabelPlaceHolder']}</label>
+                                <p:message for="revenue" id="revenueErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-2">
+                            <p:outputLabel value="#{bundle['company.linkedInPage']}" for="linkedinPage"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-4">
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputText id="linkedinPage" value="#{companiesBean.companiesEntity.linkedInPage}"
+                                             maxlength="255">
+                                    <f:validator validatorId="linkedinPageValidator"/>
+                                    <p:ajax process="@form" update="validateCompany linkedinPageErrorMsg" event="keyup"
+                                            resetValues="true"/>
+                                </p:inputText>
+                                <label>#{bundle['company.linkedInPage']}</label>
+                                <p:message for="linkedinPage" id="linkedinPageErrorMsg"/>
+                            </h:panelGroup>
+                        </div>
+
+                    </div>
+
+                    <div class="ui-g-12 ui-lg-12">
+                        <div align="right" class="mgin-top">
+                            <p:commandButton value="#{bundle['validate']}"
+                                             style="width:auto;margin-bottom:10px;"
+                                             id="validateCompany"
+                                             action="#{companiesBean.saveCompany}"
+                                             disabled="#{facesContext.validationFailed or empty companiesBean.companiesEntity.label}"
+                                             icon="ui-icon-check"
+                                             update="@(form) msgs"
+                                             resetValues="true"
+                                             oncomplete="if (!args.validationFailed){PF('companyWidgetModal').hide();}"/>
+                        </div>
+                    </div>
+                    <p:hotkey bind="esc" handler="PF('companyWidgetModal').hide()"/>
+                </h:form>
+            </div>
+        </p:dialog>
+    </f:view>
+</cc:implementation>
+</html>

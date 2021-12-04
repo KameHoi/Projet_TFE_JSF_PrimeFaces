@@ -1,0 +1,834 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="detailsRight"
+              displayName="#{bundle['tasks.list']}"
+              shortDescription="#{bundle['tasks.list']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+
+        <p:dialog header="#{bundle['tasks.update']}" width="55%" id="updateDialogTaskID" widgetVar="updateDialogTask"
+                  modal="true"
+                  responsive="true"
+                  showEffect="fade">
+            <fxs:updateTasks id="updateTasks"/>
+        </p:dialog>
+
+        <p:dialog header="#{bundle['tasks.create']}" width="55%" widgetVar="createDialogTask" modal="true"
+                  responsive="true"
+                  showEffect="fade">
+            <fxs:createTasks id="createTasks"/>
+        </p:dialog>
+
+        <div class="card card-w-title">
+
+            <h1>#{bundle['tasks.title']}</h1>
+            <h:form>
+                <p:commandButton value="#{bundle['tasks.create']}"
+                                 rendered="#{usersBean.currentUser.isPermitted('addTasks')}"
+                                 update="@(form) msgs"
+                                 resetValues="true"
+                                 onclick="PF('createDialogTask').show();" styleClass="NavyButton marginBottom10"
+                                 action="#{tasksBean.showModalCreate}"
+                />
+            </h:form>
+            <h:form id="formTabView">
+                <p:tabView id="tabViewListAllTasks">
+
+                    <p:tab id="displayAll" title="#{bundle['all']} (#{tasksBean.tasksEntities.size()})">
+                        <p:dataTable paginator="true" rows="10"
+                                     selection="#{tasksBean.selectedTaskEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     rowKey="#{task.id}"
+                                     emptyMessage="#{bundle['tasks.notFound']}"
+                                     var="task"
+                                     rowsPerPageTemplate="10,20,50"
+                                     value="#{tasksBean.tasksEntities}"
+                                     widgetVar="displayAllEntities"
+                                     filteredValue="#{tasksBean.tasksEntitiesFiltered}">
+
+                            <p:column colspan="1" priority="1" width="55" headerText="#{bundle['status']}"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks')}">
+                                <p:selectBooleanCheckbox id="statusAll" value="#{task.status}">
+                                    <p:ajax event="change" update="@form msgs"
+                                            oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                            listener="#{tasksBean.updateStatus}"/>
+                                    <f:attribute name="idTask" value="#{task.id}"/>
+                                    <p:tooltip for="statusAll" value="#{bundle['tasks.markFinished']}"
+                                               showEffect="clip"
+                                               hideEffect="fold" position="bottom"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+
+                            <p:column colspan="3" priority="1" headerText="#{bundle['tasks.title']}"
+                                      sortBy="#{task.title}"
+                                      filterBy="#{task.title}"
+                                      filterMatchMode="contains">
+
+                                <p:commandLink id="titleAll" value="#{task.title}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               update="@(form) msgs"
+                                               styleClass="boldText"
+                                               action="#{tasksBean.showModalUpdate}"
+                                >
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <h:outputText value="#{task.title}"
+                                              rendered="#{not usersBean.currentUser.isPermitted('updateTasks')}"/>
+                                <p:tooltip for="titleAll"
+                                           value="#{empty task.description ? '' : bundle['tasks.description'].concat(' : ').concat(task.description)}"
+                                           showEffect="clip" hideEffect="fold" position="bottom"/>
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.contact']}"
+                                      sortBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.contactsByIdContacts.lastname} #{task.contactsByIdContacts.firstname}"
+                                        outcome="contactDetails.xhtml?contactID=#{task.contactsByIdContacts.id}"
+                                />
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.company']}"
+                                      sortBy="#{task.companiesByIdCompanies.label}"
+                                      filterBy="#{task.companiesByIdCompanies.label}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.companiesByIdCompanies.label}"
+                                        outcome="companydetails.xhtml?companyID=#{task.companiesByIdCompanies.id}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['tasks.taskType']}"
+                                      filterBy="#{task.taskTypesByIdTaskTypes.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayAllEntities').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{taskTypesBean.taskTypesEntities}"
+                                                       var="taskTypesEntities"
+                                                       itemValue="#{taskTypesEntities.label}"
+                                                       itemLabel="#{taskTypesEntities.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.taskTypesByIdTaskTypes.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['priority']}"
+                                      filterBy="#{task.priority.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayAllEntities').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                                       var="enumPriority"
+                                                       itemValue="#{enumPriority.label}"
+                                                       itemLabel="#{enumPriority.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.priority.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="3" headerText="#{bundle['tasks.endDate']}"
+                                      filterBy="#{task.endDate}"
+                                      sortBy="#{task.endDate}"
+                                      filterable="true"
+                                      filterMatchMode="contains"
+                            >
+                                <f:facet name="filter">
+                                    <p:inputText placeholder="31/01/2021"
+                                                 onchange="PF('displayAllEntities').filter()">
+                                        <f:convertDateTime type="localDate"
+                                                           pattern="dd/MM/yyyy"/>
+                                    </p:inputText>
+                                </f:facet>
+                                <h:outputText rendered="#{task.endDate gt tasksBean.now}" value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                                <h:outputText styleClass="textRed" rendered="#{task.endDate lt tasksBean.now}"
+                                              value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column colspan="1" width="70" priority="1"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks') or usersBean.currentUser.isPermitted('deleteTasks')}">
+                                <p:commandLink update="@(form) msgs"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               action="#{tasksBean.showModalUpdate}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                >
+                                    <i class="ui-icon ui-icon-create"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <p:commandLink update="@form msgs"
+                                               action="#{tasksBean.deleteEntity}"
+                                               oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                               rendered="#{usersBean.currentUser.isPermitted('deleteTasks')}"
+                                >
+                                    <p:confirm header="#{bundle['confirmation']}" message="#{bundle['areYouSure']}"
+                                               icon="fa fa-warning"/>
+                                    <i class="ui-icon ui-icon-delete-forever"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                    <f:param name="typeEntities" value="all"/>
+                                </p:commandLink>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                                    <p:commandButton value="#{bundle['yes']}" type="button"
+                                                     styleClass="ui-confirmdialog-yes GreenButton"
+                                                     icon="ui-icon-check"/>
+                                    <p:commandButton value="#{bundle['no']}" type="button"
+                                                     styleClass="ui-confirmdialog-no RedButton"
+                                                     icon="ui-icon-close"/>
+                                </p:confirmDialog>
+
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+
+                    <p:tab id="displayToday"
+                           title="#{bundle['tasks.dueToday']} #{tasksBean.tasksEntitiesDueToday.size() eq 0 ? '' : '('.concat(tasksBean.tasksEntitiesDueToday.size()).concat(')')}">
+                        <p:dataTable paginator="true" rows="10"
+                                     selection="#{tasksBean.selectedTaskEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     rowKey="#{task.id}"
+                                     emptyMessage="#{bundle['tasks.notFound']}"
+                                     var="task"
+                                     rowsPerPageTemplate="10,20,50"
+                                     value="#{tasksBean.tasksEntitiesDueToday}"
+                                     widgetVar="displayEntitiesDueToday"
+                                     filteredValue="#{tasksBean.tasksEntitiesDueTodayFiltered}">
+
+                            <p:column colspan="1" priority="1" width="55" headerText="#{bundle['status']}"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks')}">
+                                <p:selectBooleanCheckbox id="statusToday" value="#{task.status}">
+                                    <p:ajax event="change" update="@form msgs"
+                                            oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                            listener="#{tasksBean.updateStatus}"/>
+                                    <f:attribute name="idTask" value="#{task.id}"/>
+                                    <p:tooltip for="statusToday" value="#{bundle['tasks.markFinished']}"
+                                               showEffect="clip"
+                                               hideEffect="fold" position="bottom"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+
+                            <p:column colspan="3" priority="1" headerText="#{bundle['tasks.title']}"
+                                      sortBy="#{task.title}"
+                                      filterBy="#{task.title}"
+                                      filterMatchMode="contains">
+                                <p:commandLink id="titleToday" value="#{task.title}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               update="@(form) msgs"
+                                               styleClass="boldText"
+                                               action="#{tasksBean.showModalUpdate}"
+                                >
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <h:outputText value="#{task.title}"
+                                              rendered="#{not usersBean.currentUser.isPermitted('updateTasks')}"/>
+                                <p:tooltip for="titleToday"
+                                           value="#{empty task.description ? '' : bundle['tasks.description'].concat(' : ').concat(task.description)}"
+                                           showEffect="clip" hideEffect="fold" position="bottom"/>
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.contact']}"
+                                      sortBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.contactsByIdContacts.lastname} #{task.contactsByIdContacts.firstname}"
+                                        outcome="contactDetails.xhtml?contactID=#{task.contactsByIdContacts.id}"
+                                />
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.company']}"
+                                      sortBy="#{task.companiesByIdCompanies.label}"
+                                      filterBy="#{task.companiesByIdCompanies.label}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.companiesByIdCompanies.label}"
+                                        outcome="companydetails.xhtml?companyID=#{task.companiesByIdCompanies.id}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['tasks.taskType']}"
+                                      filterBy="#{task.taskTypesByIdTaskTypes.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesDueToday').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{taskTypesBean.taskTypesEntities}"
+                                                       var="taskTypesEntities"
+                                                       itemValue="#{taskTypesEntities.label}"
+                                                       itemLabel="#{taskTypesEntities.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.taskTypesByIdTaskTypes.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['priority']}"
+                                      filterBy="#{task.priority.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesDueToday').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                                       var="enumPriority"
+                                                       itemValue="#{enumPriority.label}"
+                                                       itemLabel="#{enumPriority.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.priority.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="3" headerText="#{bundle['tasks.endDate']}"
+                                      sortBy="#{task.endDate}">
+                                <h:outputText rendered="#{task.endDate gt tasksBean.now}" value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                                <h:outputText styleClass="textRed" rendered="#{task.endDate lt tasksBean.now}"
+                                              value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column colspan="1" width="70" priority="1"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks') or usersBean.currentUser.isPermitted('deleteTasks')}">
+                                <p:commandLink update="@(form) msgs"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               action="#{tasksBean.showModalUpdate}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                >
+                                    <i class="ui-icon ui-icon-create"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <p:commandLink update="@form msgs"
+                                               action="#{tasksBean.deleteEntity}"
+                                               oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                               rendered="#{usersBean.currentUser.isPermitted('deleteTasks')}"
+                                >
+                                    <p:confirm header="#{bundle['confirmation']}" message="#{bundle['areYouSure']}"
+                                               icon="fa fa-warning"/>
+                                    <i class="ui-icon ui-icon-delete-forever"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                    <f:param name="typeEntities" value="all"/>
+                                </p:commandLink>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                                    <p:commandButton value="#{bundle['yes']}" type="button"
+                                                     styleClass="ui-confirmdialog-yes GreenButton"
+                                                     icon="ui-icon-check"/>
+                                    <p:commandButton value="#{bundle['no']}" type="button"
+                                                     styleClass="ui-confirmdialog-no RedButton"
+                                                     icon="ui-icon-close"/>
+                                </p:confirmDialog>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+
+                    <p:tab id="displayToLate"
+                           title="#{bundle['tasks.toLate']} #{tasksBean.tasksEntitiesToLate.size() eq 0 ? '' : '('.concat(tasksBean.tasksEntitiesToLate.size()).concat(')')}">
+                        <p:dataTable paginator="true" rows="10"
+                                     selection="#{tasksBean.selectedTaskEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     rowKey="#{task.id}"
+                                     emptyMessage="#{bundle['tasks.notFound']}"
+                                     var="task"
+                                     rowsPerPageTemplate="10,20,50"
+                                     value="#{tasksBean.tasksEntitiesToLate}"
+                                     widgetVar="displayEntitiesToLate"
+                                     filteredValue="#{tasksBean.tasksEntitiesToLateFiltered}">
+
+                            <p:column colspan="1" priority="1" width="55" headerText="#{bundle['status']}"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks')}">
+                                <p:selectBooleanCheckbox id="statusToLate" value="#{task.status}">
+                                    <p:ajax event="change" update="@form msgs"
+                                            oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                            listener="#{tasksBean.updateStatus}"/>
+                                    <f:attribute name="idTask" value="#{task.id}"/>
+                                    <p:tooltip for="statusToLate" value="#{bundle['tasks.markFinished']}"
+                                               showEffect="clip"
+                                               hideEffect="fold" position="bottom"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+
+                            <p:column colspan="3" priority="1" headerText="#{bundle['tasks.title']}"
+                                      sortBy="#{task.title}"
+                                      filterBy="#{task.title}"
+                                      filterMatchMode="contains">
+
+                                <p:commandLink id="titleToLate" value="#{task.title}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               update="@(form) msgs"
+                                               styleClass="boldText"
+                                               action="#{tasksBean.showModalUpdate}"
+                                >
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <h:outputText value="#{task.title}"
+                                              rendered="#{not usersBean.currentUser.isPermitted('updateTasks')}"/>
+                                <p:tooltip for="titleToLate"
+                                           value="#{empty task.description ? '' : bundle['tasks.description'].concat(' : ').concat(task.description)}"
+                                           showEffect="clip" hideEffect="fold" position="bottom"/>
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.contact']}"
+                                      sortBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.contactsByIdContacts.lastname} #{task.contactsByIdContacts.firstname}"
+                                        outcome="contactDetails.xhtml?contactID=#{task.contactsByIdContacts.id}"
+                                />
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.company']}"
+                                      sortBy="#{task.companiesByIdCompanies.label}"
+                                      filterBy="#{task.companiesByIdCompanies.label}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.companiesByIdCompanies.label}"
+                                        outcome="companydetails.xhtml?companyID=#{task.companiesByIdCompanies.id}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['tasks.taskType']}"
+                                      filterBy="#{task.taskTypesByIdTaskTypes.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesToLate').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{taskTypesBean.taskTypesEntities}"
+                                                       var="taskTypesEntities"
+                                                       itemValue="#{taskTypesEntities.label}"
+                                                       itemLabel="#{taskTypesEntities.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.taskTypesByIdTaskTypes.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['priority']}"
+                                      filterBy="#{task.priority.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesToLate').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                                       var="enumPriority"
+                                                       itemValue="#{enumPriority.label}"
+                                                       itemLabel="#{enumPriority.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.priority.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="3" headerText="#{bundle['tasks.endDate']}"
+                                      filterBy="#{task.endDate}"
+                                      sortBy="#{task.endDate}"
+                                      filterable="true"
+                                      filterMatchMode="contains"
+                            >
+                                <f:facet name="filter">
+                                    <p:inputText placeholder="31/01/2021"
+                                                 onchange="PF('displayEntitiesToLate').filter()">
+                                        <f:convertDateTime type="localDate"
+                                                           pattern="dd/MM/yyyy"/>
+                                    </p:inputText>
+                                </f:facet>
+                                <h:outputText rendered="#{task.endDate gt tasksBean.now}" value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                                <h:outputText styleClass="textRed" rendered="#{task.endDate lt tasksBean.now}"
+                                              value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column colspan="1" width="70" priority="1"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks') or usersBean.currentUser.isPermitted('deleteTasks')}">
+                                <p:commandLink update="@(form) msgs"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               action="#{tasksBean.showModalUpdate}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                >
+                                    <i class="ui-icon ui-icon-create"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <p:commandLink update="@form msgs"
+                                               action="#{tasksBean.deleteEntity}"
+                                               oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                               rendered="#{usersBean.currentUser.isPermitted('deleteTasks')}"
+                                >
+                                    <p:confirm header="#{bundle['confirmation']}" message="#{bundle['areYouSure']}"
+                                               icon="fa fa-warning"/>
+                                    <i class="ui-icon ui-icon-delete-forever"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                    <f:param name="typeEntities" value="all"/>
+                                </p:commandLink>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                                    <p:commandButton value="#{bundle['yes']}" type="button"
+                                                     styleClass="ui-confirmdialog-yes GreenButton"
+                                                     icon="ui-icon-check"/>
+                                    <p:commandButton value="#{bundle['no']}" type="button"
+                                                     styleClass="ui-confirmdialog-no RedButton"
+                                                     icon="ui-icon-close"/>
+                                </p:confirmDialog>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+
+                    <p:tab id="displayToCome"
+                           title="#{bundle['tasks.toCome']} #{tasksBean.tasksEntitiesToCome.size() eq 0 ? '' : '('.concat(tasksBean.tasksEntitiesToCome.size()).concat(')')}">
+                        <p:dataTable paginator="true" rows="10"
+                                     selection="#{tasksBean.selectedTaskEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     rowKey="#{task.id}"
+                                     emptyMessage="#{bundle['tasks.notFound']}"
+                                     var="task"
+                                     rowsPerPageTemplate="10,20,50"
+                                     value="#{tasksBean.tasksEntitiesToCome}"
+                                     widgetVar="displayEntitiesToCome"
+                                     filteredValue="#{tasksBean.tasksEntitiesToComeFiltered}">
+
+                            <p:column colspan="1" priority="1" width="55" headerText="#{bundle['status']}"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks')}">
+                                <p:selectBooleanCheckbox id="statusToCome" value="#{task.status}">
+                                    <p:ajax event="change" update="@form msgs"
+                                            oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                            listener="#{tasksBean.updateStatus}"/>
+                                    <f:attribute name="idTask" value="#{task.id}"/>
+                                    <p:tooltip for="statusToCome" value="#{bundle['tasks.markFinished']}"
+                                               showEffect="clip"
+                                               hideEffect="fold" position="bottom"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+
+                            <p:column colspan="3" priority="1" headerText="#{bundle['tasks.title']}"
+                                      sortBy="#{task.title}"
+                                      filterBy="#{task.title}"
+                                      filterMatchMode="contains">
+                                <p:commandLink id="titleToCome" value="#{task.title}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               update="@(form) msgs"
+                                               styleClass="boldText"
+                                               action="#{tasksBean.showModalUpdate}"
+                                >
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <h:outputText value="#{task.title}"
+                                              rendered="#{not usersBean.currentUser.isPermitted('updateTasks')}"/>
+                                <p:tooltip for="titleToCome"
+                                           value="#{empty task.description ? '' : bundle['tasks.description'].concat(' : ').concat(task.description)}"
+                                           showEffect="clip" hideEffect="fold" position="bottom"/>
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.contact']}"
+                                      sortBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.contactsByIdContacts.lastname} #{task.contactsByIdContacts.firstname}"
+                                        outcome="contactDetails.xhtml?contactID=#{task.contactsByIdContacts.id}"
+                                />
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.company']}"
+                                      sortBy="#{task.companiesByIdCompanies.label}"
+                                      filterBy="#{task.companiesByIdCompanies.label}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.companiesByIdCompanies.label}"
+                                        outcome="companydetails.xhtml?companyID=#{task.companiesByIdCompanies.id}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['tasks.taskType']}"
+                                      filterBy="#{task.taskTypesByIdTaskTypes.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesToCome').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{taskTypesBean.taskTypesEntities}"
+                                                       var="taskTypesEntities"
+                                                       itemValue="#{taskTypesEntities.label}"
+                                                       itemLabel="#{taskTypesEntities.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.taskTypesByIdTaskTypes.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['priority']}"
+                                      filterBy="#{task.priority.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesToCome').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                                       var="enumPriority"
+                                                       itemValue="#{enumPriority.label}"
+                                                       itemLabel="#{enumPriority.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.priority.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="3" headerText="#{bundle['tasks.endDate']}"
+                                      filterBy="#{task.endDate}"
+                                      sortBy="#{task.endDate}"
+                                      filterable="true"
+                                      filterMatchMode="contains"
+                            >
+                                <f:facet name="filter">
+                                    <p:inputText placeholder="31/01/2021"
+                                                 onchange="PF('displayEntitiesToCome').filter()">
+                                        <f:convertDateTime type="localDate"
+                                                           pattern="dd/MM/yyyy"/>
+                                    </p:inputText>
+                                </f:facet>
+                                <h:outputText rendered="#{task.endDate gt tasksBean.now}" value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                                <h:outputText styleClass="textRed" rendered="#{task.endDate lt tasksBean.now}"
+                                              value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column colspan="1" width="70" priority="1"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks') or usersBean.currentUser.isPermitted('deleteTasks')}">
+                                <p:commandLink update="@(form) msgs"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               action="#{tasksBean.showModalUpdate}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                >
+                                    <i class="ui-icon ui-icon-create"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <p:commandLink update="@form msgs"
+                                               action="#{tasksBean.deleteEntity}"
+                                               oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                               rendered="#{usersBean.currentUser.isPermitted('deleteTasks')}"
+                                >
+                                    <p:confirm header="#{bundle['confirmation']}" message="#{bundle['areYouSure']}"
+                                               icon="fa fa-warning"/>
+                                    <i class="ui-icon ui-icon-delete-forever"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                    <f:param name="typeEntities" value="all"/>
+                                </p:commandLink>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                                    <p:commandButton value="#{bundle['yes']}" type="button"
+                                                     styleClass="ui-confirmdialog-yes GreenButton"
+                                                     icon="ui-icon-check"/>
+                                    <p:commandButton value="#{bundle['no']}" type="button"
+                                                     styleClass="ui-confirmdialog-no RedButton"
+                                                     icon="ui-icon-close"/>
+                                </p:confirmDialog>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+
+                    <p:tab id="displayFinished"
+                           title="#{bundle['tasks.finished']} #{tasksBean.tasksEntitiesFinished.size() eq 0 ? '' : '('.concat(tasksBean.tasksEntitiesFinished.size()).concat(')')}">
+                        <p:dataTable paginator="true" rows="10"
+                                     selection="#{tasksBean.selectedTaskEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     rowKey="#{task.id}"
+                                     emptyMessage="#{bundle['tasks.notFound']}"
+                                     var="task"
+                                     rowsPerPageTemplate="10,20,50"
+                                     value="#{tasksBean.tasksEntitiesFinished}"
+                                     widgetVar="displayEntitiesFinished"
+                                     filteredValue="#{tasksBean.tasksEntitiesFinishedFiltered}">
+
+                            <p:column colspan="1" priority="1" width="55" headerText="#{bundle['status']}"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks')}">
+                                <p:selectBooleanCheckbox id="statusFinished" value="#{task.status}">
+                                    <p:ajax event="change" update="@form msgs"
+                                            oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                            listener="#{tasksBean.updateStatus}"/>
+                                    <f:attribute name="idTask" value="#{task.id}"/>
+                                    <p:tooltip for="statusFinished" value="#{bundle['tasks.markNotFinished']}"
+                                               showEffect="clip"
+                                               hideEffect="fold" position="bottom"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+
+                            <p:column colspan="3" priority="1" headerText="#{bundle['tasks.title']}"
+                                      sortBy="#{task.title}"
+                                      filterBy="#{task.title}"
+                                      filterMatchMode="contains">
+
+                                <p:commandLink id="titleFinished" value="#{task.title}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               update="@(form) msgs"
+                                               styleClass="boldText"
+                                               action="#{tasksBean.showModalUpdate}"
+                                >
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <h:outputText value="#{task.title}"
+                                              rendered="#{not usersBean.currentUser.isPermitted('updateTasks')}"/>
+                                <p:tooltip for="titleFinished"
+                                           value="#{empty task.description ? '' : bundle['tasks.description'].concat(' : ').concat(task.description)}"
+                                           showEffect="clip" hideEffect="fold" position="bottom"/>
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.contact']}"
+                                      sortBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterBy="#{task.contactsByIdContacts.lastname.concat(task.contactsByIdContacts.firstname)}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.contactsByIdContacts.lastname} #{task.contactsByIdContacts.firstname}"
+                                        outcome="contactDetails.xhtml?contactID=#{task.contactsByIdContacts.id}"
+                                />
+                            </p:column>
+
+                            <p:column colspan="2" priority="4" headerText="#{bundle['tasks.company']}"
+                                      sortBy="#{task.companiesByIdCompanies.label}"
+                                      filterBy="#{task.companiesByIdCompanies.label}"
+                                      filterMatchMode="contains">
+                                <h:link
+                                        value="#{task.companiesByIdCompanies.label}"
+                                        outcome="companydetails.xhtml?companyID=#{task.companiesByIdCompanies.id}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['tasks.taskType']}"
+                                      filterBy="#{task.taskTypesByIdTaskTypes.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesFinished').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{taskTypesBean.taskTypesEntities}"
+                                                       var="taskTypesEntities"
+                                                       itemValue="#{taskTypesEntities.label}"
+                                                       itemLabel="#{taskTypesEntities.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.taskTypesByIdTaskTypes.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="5" headerText="#{bundle['priority']}"
+                                      filterBy="#{task.priority.label}" filterMatchMode="exact">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('displayEntitiesFinished').filter()"
+                                                     style="width:100%; box-sizing: border-box;">
+                                        <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                                      itemValue="#{null}"
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                                       var="enumPriority"
+                                                       itemValue="#{enumPriority.label}"
+                                                       itemLabel="#{enumPriority.label}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText value="#{task.priority.label}"/>
+                            </p:column>
+
+                            <p:column colspan="1" priority="3" headerText="#{bundle['tasks.endDate']}"
+                                      filterBy="#{task.endDate}"
+                                      sortBy="#{task.endDate}"
+                                      filterable="true"
+                                      filterMatchMode="contains"
+                            >
+                                <f:facet name="filter">
+                                    <p:inputText placeholder="31/01/2021"
+                                                 onchange="PF('displayEntitiesFinished').filter()">
+                                        <f:convertDateTime type="localDate"
+                                                           pattern="dd/MM/yyyy"/>
+                                    </p:inputText>
+                                </f:facet>
+                                <h:outputText value="#{task.endDate}">
+                                    <f:convertDateTime type="localDate"
+                                                       pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column colspan="1" width="70" priority="1"
+                                      rendered="#{usersBean.currentUser.isPermitted('updateTasks') or usersBean.currentUser.isPermitted('deleteTasks')}">
+                                <p:commandLink update="@(form) msgs"
+                                               resetValues="true"
+                                               onclick="PF('updateDialogTask').show();"
+                                               action="#{tasksBean.showModalUpdate}"
+                                               rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                                >
+                                    <i class="ui-icon ui-icon-create"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                </p:commandLink>
+                                <p:commandLink update="@form msgs"
+                                               action="#{tasksBean.deleteEntity}"
+                                               oncomplete="PF('displayAllEntities').filter(); PF('displayEntitiesDueToday').filter(); PF('displayEntitiesToLate').filter(); PF('displayEntitiesToCome').filter(); PF('displayEntitiesFinished').filter();"
+                                               rendered="#{usersBean.currentUser.isPermitted('deleteTasks')}"
+                                >
+                                    <p:confirm header="#{bundle['confirmation']}" message="#{bundle['areYouSure']}"
+                                               icon="fa fa-warning"/>
+                                    <i class="ui-icon ui-icon-delete-forever"/>
+                                    <f:param name="idEntity" value="#{task.id}"/>
+                                    <f:param name="typeEntities" value="all"/>
+                                </p:commandLink>
+
+                                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                                    <p:commandButton value="#{bundle['yes']}" type="button"
+                                                     styleClass="ui-confirmdialog-yes GreenButton"
+                                                     icon="ui-icon-check"/>
+                                    <p:commandButton value="#{bundle['no']}" type="button"
+                                                     styleClass="ui-confirmdialog-no RedButton"
+                                                     icon="ui-icon-close"/>
+                                </p:confirmDialog>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+
+                </p:tabView>
+            </h:form>
+        </div>
+    </f:view>
+</cc:implementation>
+</html>

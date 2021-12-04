@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="updateBranchActivities"
+              displayName="#{bundle['branchActivities.create']}"
+              shortDescription="#{bundle['branchActivities.create']}"/>
+
+<cc:implementation>
+    <f:view>
+        <p:dialog
+                header="#{bundle['branchActivities.updateModalHeader']}"
+                modal="true"
+                id="updateBranchActivitiesModal" widgetVar="updateBranchActivitiesModal" responsive="true">
+            <h:form>
+                <p:outputPanel id="branchActivitiesManageContent" class="ui-fluid">
+                    <h:panelGroup styleClass="md-inputfield jobtitlesFullDisplay">
+
+                        <p:inputText id="branchActivitiesLabelUpdate"
+                                     value="#{branchActivitiesBean.branchActivitiesEntity.label}" required="true"
+                                     requiredMessage="#{bundle['branchActivities.labelExist']}" maxlength="255">
+                            <f:validator validatorId="branchActivitiesLabelValidator"/>
+                            <p:ajax process="@form" resetValues="true"
+                                    update="validateUpdateBranchActivitiesBtn branchActivitiesLabelUpdateErrorMsg"
+                                    event="keyup"/>
+                        </p:inputText>
+                        <label>#{bundle['branchActivities.title']}</label>
+                        <p:message for="branchActivitiesLabelUpdate" id="branchActivitiesLabelUpdateErrorMsg"/>
+                    </h:panelGroup>
+                </p:outputPanel>
+
+                <div align="right" class="modalValidateBtn-margin-top">
+                    <p:commandButton value="#{bundle['edit']}"
+                                     icon="ui-icon-check"
+                                     id="validateUpdateBranchActivitiesBtn"
+                                     disabled="#{facesContext.validationFailed or empty branchActivitiesBean.branchActivitiesEntity.label or branchActivitiesBean.branchActivitiesEntity.label eq null}"
+                                     update="@(form) facesMessage"
+                                     resetValues="true"
+                                     action="#{branchActivitiesBean.updateBranchActivities}"
+                                     oncomplete="if(!args.validationFailed) {PF('updateBranchActivitiesModal').hide()}; PF('displayAllBranchActivities').filter()"/>
+                </div>
+                <p:hotkey bind="esc" handler="PF('updateBranchActivitiesModal').hide()"/>
+            </h:form>
+        </p:dialog>
+    </f:view>
+</cc:implementation>
+</html>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="listAlltaskTypes"
+              displayName="#{bundle['taskTypes.list']}"
+              shortDescription="#{bundle['taskTypes.list']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <p:dialog header="#{bundle['taskTypes.update']}" id="dlg2" widgetVar="dlg2" modal="true" responsive="true"
+                  showEffect="fade">
+            <fxs:updateTaskTypes id="updateTaskTypes"/>
+        </p:dialog>
+
+        <p:dialog header="#{bundle['taskTypes.create']}" widgetVar="createDialog" modal="true" responsive="true"
+                  showEffect="fade">
+            <fxs:createTaskTypes id="createTaskTypes"/>
+        </p:dialog>
+
+        <div class="card card-w-title">
+            <h1>#{bundle['taskTypes.title']}</h1>
+            <h:form>
+                <p:commandButton value="#{bundle['taskTypes.create']}"
+                                 rendered="#{usersBean.currentUser.isPermitted('addTaskTypes')}"
+                                 update="@(form) msgs"
+                                 resetValues="true"
+                                 onclick="PF('createDialog').show();" styleClass="NavyButton marginBottom15"
+                                 action="#{taskTypesBean.showModalCreate}"
+                />
+            </h:form>
+            <h:form id="form">
+                <p:dataTable paginator="true" rows="10"
+                             selection="#{taskTypesBean.selectedTaskTypeEntity}" selectionMode="single"
+                             paginatorPosition="bottom"
+                             rowKey="#{taskType.id}"
+                             emptyMessage="#{bundle['taskTypes.notFound']}"
+                             var="taskType"
+                             rowsPerPageTemplate="10,20,50"
+                             value="#{taskTypesBean.taskTypesEntities}"
+                             widgetVar="displayAllEntities"
+                             filteredValue="#{taskTypesBean.taskTypesEntitiesFiltered}">
+
+                    <p:column colspan="10" headerText="#{bundle['taskTypes.name']}"
+                              sortBy="#{taskType.label}"
+                              filterBy="#{taskType.label}"
+                              filterMatchMode="contains">
+                        <h:outputText value="#{taskType.label}"/>
+                    </p:column>
+                    <p:column colspan="2" headerText="#{bundle['edit']}"
+                              rendered="#{usersBean.currentUser.isPermitted('updateTaskTypes')}">
+                        <p:commandLink icon="ui-icon-edit" styleClass="NavyButton"
+                                       id="labelAll"
+                                       onclick="PF('dlg2').show();"
+                                       update="@(form) msgs"
+                                       resetValues="true"
+                                       action="#{taskTypesBean.showModalUpdate}"
+                        >
+                            <i class="ui-icon ui-icon-create"/>
+                            <f:param name="idEntity" value="#{taskType.id}"/>
+                        </p:commandLink>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </div>
+    </f:view>
+</cc:implementation>
+</html>

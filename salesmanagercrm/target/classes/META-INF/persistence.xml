@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+    <persistence-unit name="salesmanagercrm">
+        <class>be.atc.salesmanagercrm.entities.AddressesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.BranchActivitiesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.CitiesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.CivilitiesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.CompaniesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.CompaniesContactsEntity</class>
+        <class>be.atc.salesmanagercrm.entities.CompanyTypesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.ContactTypesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.ContactsEntity</class>
+        <class>be.atc.salesmanagercrm.entities.ConversationsEntity</class>
+        <class>be.atc.salesmanagercrm.entities.CountriesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.JobTitlesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.NotesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.PermissionsEntity</class>
+        <class>be.atc.salesmanagercrm.entities.RolesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.RolesPermissionsEntity</class>
+        <class>be.atc.salesmanagercrm.entities.TaskTypesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.TasksEntity</class>
+        <class>be.atc.salesmanagercrm.entities.TransactionHistoriesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.TransactionPhasesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.TransactionTypesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.TransactionsEntity</class>
+        <class>be.atc.salesmanagercrm.entities.UsersEntity</class>
+        <class>be.atc.salesmanagercrm.entities.VoucherHistoriesEntity</class>
+        <class>be.atc.salesmanagercrm.entities.VoucherStatusEntity</class>
+        <class>be.atc.salesmanagercrm.entities.VouchersEntity</class>
+
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+
+            <property name="javax.persistence.jdbc.url"
+                      value="jdbc:mysql://localhost:3306/salesmanagercrm?serverTimezone=UTC"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+        </properties>
+    </persistence-unit>
+</persistence>

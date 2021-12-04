@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite" xmlns:h="http://java.sun.com/jsf/html">
+
+<cc:interface name="dashboardContacts"
+              displayName="#{bundle['dashboard.title']}"
+              shortDescription="#{bundle['dashboard.title']}"
+/>
+
+<cc:implementation>
+    <f:view>
+        <p:dataTable var="contacts" value="#{contactsBean.contactsEntityList}" rows="10"
+                     selectionMode="single" reflow="true"
+                     id="contactsDatatable" rowKey="#{contacts.id}"
+                     widgetVar="displayAllActiveContacts"
+                     paginator="true" styleClass="dataTable-margin-top"
+                     selection="#{contactsBean.selectedContactsEntity}"
+                     filteredValue="#{contactsBean.contactEntitiesFiltered}"
+                     emptyMessage="#{bundle['contacts.contactNotFound']}"
+                     paginatorPosition="bottom">
+
+            <p:column styleClass="contactsLabel" headerText="#{bundle['contacts.label']}" sortBy="#{contacts.firstname}"
+                      filterBy="#{contacts.firstname} #{contacts.lastname}" filterMatchMode="contains">
+                <p:link outcome="contactDetails">
+                    <h:outputText value="#{contacts.firstname} #{contacts.lastname}"/>
+                    <f:param name="contactID" value="#{contacts.id}"/>
+                </p:link>
+                <p:watermark for="@(.contactsLabel)" value="#{bundle['contacts.searchByContacts']}"/>
+            </p:column>
+        </p:dataTable>
+    </f:view>
+</cc:implementation>
+</html>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="listTasksByContact"
+              displayName="#{bundle['tasks.list']}"
+              shortDescription="#{bundle['tasks.list']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <p:commandButton value="#{bundle['tasks.create']}"
+                         resetValues="true"
+                         rendered="#{usersBean.currentUser.isPermitted('addTasks')}"
+                         update="detailsRight:formTabView detailsRight:createTasks:formCreateTask msgs"
+                         onclick="PF('createDialogTask').show();" styleClass="NavyButton marginBottom15"
+                         action="#{tasksBean.showModalCreate}"/>
+
+        <p:dataTable id="task1" var="task"
+                     value="#{tasksBean.tasksEntities}"
+                     editable="true"
+                     emptyMessage="#{bundle['tasks.notFound']}"
+                     paginator="true" rows="10"
+                     paginatorPosition="bottom"
+                     rowsPerPageTemplate="10,20,50"
+                     rowStyleClass="styleDataTableEdit"
+                     styleClass="my-table-classe"
+        >
+
+            <p:ajax event="rowEdit" listener="#{tasksBean.onRowEdit}" update="@this msgs"/>
+            <p:ajax event="rowEditCancel" listener="#{tasksBean.onRowCancel}" update="@this msgs"/>
+
+            <p:column styleClass="dataTableCellEditorInput">
+                <div class="align-start justify-between">
+                    <div class="display-inline-flex align-center">
+                        <h:outputText styleClass="boldText" value="#{bundle['task']} "/>
+                        <h:outputText title="#{bundle['by']} : #{task.usersByIdUsers.email}"
+                                      value="&nbsp;#{bundle['by']} #{task.usersByIdUsers.firstname}"/>
+
+                    </div>
+                    <div class="flex-shrink-0 justify-end">
+                        <h:outputText rendered="#{empty task.endDate ? false : true}"
+                                      value=" #{task.endDate > tasksBean.now ? bundle['deadline'] : bundle['late']} "/>
+                        <h:outputText rendered="#{empty task.endDate ? false : true}" value="#{task.endDate}"
+                                      styleClass="flex-shrink-0 justify-end">
+                            <f:convertDateTime type="localDate"
+                                               pattern="dd/MM/yyyy ' #{bundle['at']} ' HH:mm"/>
+                        </h:outputText>
+                    </div>
+                </div>
+
+                <p:cellEditor>
+                    <f:facet name="output">
+                        <div class="ui-g-12 ui-lg-2"><p:outputLabel for="acTitleUpdate"
+                                                                    value="#{bundle['title']}:"/></div>
+                        <div class="ui-g-12 ui-lg-10">
+                            <h:outputText value="#{task.title}"/>
+                        </div>
+                    </f:facet>
+                    <f:facet name="input">
+                        <div class="ui-g form-group">
+                            <div class="ui-g-12 ui-lg-2"><p:outputLabel for="acTitleUpdate"
+                                                                        value="#{bundle['title']}:"/></div>
+                            <div class="ui-g-12 ui-lg-10">
+                                <h:panelGroup styleClass="md-inputfield">
+                                    <p:inputText id="acTitleUpdate" value="#{task.title}"
+                                                 required="true"
+                                                 maxlength="255"
+                                                 requiredMessage="#{bundle['task.validator.title']}"
+                                                 label="#{bundle['title']}">
+                                    </p:inputText>
+                                    <label>#{bundle['title']}</label>
+                                    <p:message id="msg" for="acTitleUpdate"/>
+                                </h:panelGroup>
+                            </div>
+                        </div>
+                    </f:facet>
+                </p:cellEditor>
+
+                <p:cellEditor>
+                    <f:facet name="output">
+                        <h:outputText/>
+                    </f:facet>
+                    <f:facet name="input">
+                        <div class="ui-g form-group">
+                            <div class="ui-g-12 ui-lg-2"><p:outputLabel for="taskTypeUpdate" styleClass="colorBlack"
+                                                                        value="#{bundle['tasks.taskType']}:"/>
+                            </div>
+                            <div class="ui-g-12 ui-lg-10">
+                                <p:selectOneMenu id="taskTypeUpdate"
+                                                 value="#{task.taskTypesByIdTaskTypes}"
+                                                 converter="taskTypeConverter">
+
+                                    <f:selectItems value="#{taskTypesBean.taskTypesEntities}"
+                                                   var="taskTypesEntities" itemValue="#{taskTypesEntities}"
+                                                   itemLabel="#{taskTypesEntities.label}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                    </f:facet>
+                </p:cellEditor>
+
+                <p:cellEditor>
+                    <f:facet name="output">
+                        <h:outputText/>
+                    </f:facet>
+                    <f:facet name="input">
+                        <div class="ui-g form-group">
+                            <div class="ui-g-12 ui-lg-2"><p:outputLabel for="taskPriorityUpdate"
+                                                                        value="#{bundle['priority']}:"/>
+                            </div>
+                            <div class="ui-g-12 ui-lg-10">
+                                <p:selectOneMenu id="taskPriorityUpdate"
+                                                 value="#{task.priority}"
+                                                 validatorMessage="#{bundle['task.validator.priority']}">
+                                    <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                                   var="enumPriority" itemValue="#{enumPriority}"
+                                                   itemLabel="#{enumPriority.label}"/>
+                                    <f:validator validatorId="enumPriorityValidator"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                    </f:facet>
+                </p:cellEditor>
+
+                <p:cellEditor>
+                    <f:facet name="output">
+                        <h:outputText/>
+                    </f:facet>
+                    <f:facet name="input">
+                        <div class="ui-g form-group">
+                            <div class="ui-g-12 ui-lg-2"><p:outputLabel for="datetimeUpdate"
+                                                                        value="#{bundle['dueDate']}:"/>
+                            </div>
+                            <div class="ui-g-12 ui-lg-10">
+                                <h:panelGroup styleClass="md-inputfield">
+                                    <p:calendar value="#{task.endDate}"
+                                                converterMessage="#{bundle['converter.dateTime']}"
+                                                validatorMessage="#{bundle['task.validator.dateEnd']}"
+                                                id="datetimeUpdate" pattern="dd/MM/yyyy HH:mm"
+                                                mindate="#{task.creationDate}">
+                                    </p:calendar>
+                                    <label>#{bundle['dueDate']}:</label>
+                                    <p:message id="msgDateTime" for="datetimeUpdate"/>
+                                </h:panelGroup>
+                            </div>
+                        </div>
+                    </f:facet>
+                </p:cellEditor>
+
+                <p:cellEditor>
+                    <f:facet name="output">
+                        <div class="ui-g-12 ui-lg-2"><p:outputLabel for="descriptionUpdate"
+                                                                    value="#{bundle['tasks.description']}:"/>
+                        </div>
+                        <div class="ui-g-12 ui-lg-10">
+                            <h:outputText styleClass="fontStyleItalic" value="#{task.description}"/>
+                        </div>
+                    </f:facet>
+                    <f:facet name="input">
+                        <div class="ui-g form-group">
+                            <div class="ui-g-12 ui-lg-2"><p:outputLabel for="descriptionUpdate"
+                                                                        value="#{bundle['tasks.description']}:"/>
+                            </div>
+                            <div class="ui-g-12 ui-lg-10">
+                                <h:panelGroup styleClass="md-inputfield">
+                                    <p:inputTextarea id="descriptionUpdate"
+                                                     rows="6"
+                                                     maxlength="255"
+                                                     cols="100"
+                                                     autoResize="false"
+                                                     value="#{task.description}"
+                                                     label="#{bundle['tasks.description']}"/>
+                                    <label>#{bundle['descriptionHolder']}:</label>
+                                    <p:message id="msgDescription" for="descriptionUpdate"/>
+                                </h:panelGroup>
+                            </div>
+                        </div>
+                    </f:facet>
+                </p:cellEditor>
+            </p:column>
+            <p:column styleClass="columnEditDelte"
+                      rendered="#{usersBean.currentUser.isPermitted('updateTasks') or usersBean.currentUser.isPermitted('deleteTasks')}">
+                <p:rowEditor rendered="#{usersBean.currentUser.isPermitted('updateTasks')}"
+                             styleClass="displayInlineBlock"/>
+
+                <p:commandLink
+                        update="detailsRight:formTabView detailsRight:createTasks:formCreateTask msgs"
+                        rendered="#{usersBean.currentUser.isPermitted('deleteTasks')}"
+                        action="#{tasksBean.deleteEntity}">
+                    <p:confirm header="#{bundle['confirmation']}" message="#{bundle['areYouSure']}"
+                               icon="fa fa-warning"/>
+                    <i class="ui-icon ui-icon-delete-forever"/>
+                    <f:param name="idEntity" value="#{task.id}"/>
+                </p:commandLink>
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                    <p:commandButton value="#{bundle['yes']}" type="button"
+                                     styleClass="ui-confirmdialog-yes GreenButton"
+                                     icon="ui-icon-check"/>
+                    <p:commandButton value="#{bundle['no']}" type="button"
+                                     styleClass="ui-confirmdialog-no RedButton"
+                                     icon="ui-icon-close"/>
+                </p:confirmDialog>
+            </p:column>
+
+        </p:dataTable>
+
+    </f:view>
+</cc:implementation>
+</html>

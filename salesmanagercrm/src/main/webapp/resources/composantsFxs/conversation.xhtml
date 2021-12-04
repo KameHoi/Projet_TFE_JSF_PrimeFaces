@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="conversation"
+              displayName="#{bundle['conversation.title']}"
+              shortDescription="#{bundle['conversation.title']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <p:panel header="Chat" styleClass="ui-shadow-content">
+            <p:growl id="facesMessage" showDetail="true" skipDetailIfEqualsSummary="true"/>
+            <h:form id="chatForm">
+                <ul>
+                    <p:dataScroller id="dataScrollerChat" value="#{conversationsBean.conversationsEntityList}"
+                                    class="scroller"
+                                    var="convers" chunkSize="100"
+                                    scrollHeight="500" mode="inline">
+                        <li class="#{convers.usersByIdUsers.username eq usersBean.usersEntity.username ? 'clearfix message-own' : 'clearfix message-from'}">
+                                <span>
+                                    <p:outputLabel value="#{convers.creationDate}">
+                            <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
+                                    </p:outputLabel>
+                                    <h:outputText
+                                            value="#{convers.usersByIdUsers.lastname} #{convers.usersByIdUsers.firstname} #{bundle['say']}:"/>
+                                    <h:outputText styleClass="displayInlineBlock"
+                                                  value="#{convers.message}"/>
+                                </span>
+                        </li>
+                    </p:dataScroller>
+                </ul>
+                <div class="ui-g new-message">
+
+                    <div class="ui-g-12 ui-md-6 ui-lg-11 ui-fluid ">
+                        <p:inputText id="message" value="#{conversationsBean.conversationsEntity.message}"
+                                     placeholder="#{bundle['enterMessage']}" minlength="1"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-1">
+
+                        <p:commandLink action="#{conversationsBean.addEntity}"
+                                       update="@form"
+                                       process="@form">
+                            <i class="fa fa-send fa-lg"/>
+                        </p:commandLink>
+                    </div>
+
+                </div>
+            </h:form>
+        </p:panel>
+    </f:view>
+</cc:implementation>
+</html>

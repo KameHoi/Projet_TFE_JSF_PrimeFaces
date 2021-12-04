@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<cc:interface name="listAllVouchers"
+              displayName="#{bundle['vouchers.list']}"
+              shortDescription="#{bundle['vouchers.list']}"
+>
+</cc:interface>
+<cc:implementation>
+    <f:view>
+        <p:dialog header="#{bundle['vouchers.details']}" width="55%" id="dlg2" widgetVar="dlg2" modal="true"
+                  responsive="true"
+                  showEffect="fade">
+            <fxs:updateVouchers id="updateVouchers"/>
+        </p:dialog>
+
+        <p:dialog header="#{bundle['vouchers.create']}" width="55%" widgetVar="createDialog" modal="true"
+                  responsive="true"
+                  showEffect="fade">
+            <fxs:createVouchers id="createVouchers"/>
+        </p:dialog>
+
+        <div class="card card-w-title">
+            <h1>#{bundle['vouchers.title']}</h1>
+            <h:form>
+                <p:commandButton value="#{bundle['vouchers.create']}"
+                                 rendered="#{usersBean.currentUser.isPermitted('addVouchers')}"
+                                 update="@(form) msgs"
+                                 resetValues="true"
+                                 onclick="PF('createDialog').show();" styleClass="NavyButton marginBottom15"
+                                 action="#{vouchersBean.showModalCreate}"
+                />
+            </h:form>
+            <h:form id="formListVouchers">
+                <p:dataTable paginator="true" rows="10"
+                             selection="#{vouchersBean.selectedVoucherEntity}" selectionMode="single"
+                             paginatorPosition="bottom"
+                             rowKey="#{voucher.id}"
+                             emptyMessage="#{bundle['vouchers.notFound']}"
+                             var="voucher"
+                             rowsPerPageTemplate="10,20,50"
+                             value="#{vouchersBean.vouchersEntities}"
+                             widgetVar="displayAllEntities"
+                             filteredValue="#{vouchersBean.vouchersEntitiesFiltered}">
+
+                    <f:facet name="header">
+                        <p:outputPanel>
+                            <h:outputText value="#{bundle['search']} : "/>
+                            <p:inputText id="globalFilter" onkeyup="PF('displayAllEntities').filter()"
+                                         style="width:150px" placeholder="#{bundle['search']}"/>
+                        </p:outputPanel>
+                    </f:facet>
+                    <p:column priority="1" colspan="1" width="87" headerText="#{bundle['vouchers.id']}"
+                              sortBy="#{voucher.id}"
+                              filterable="true"
+                              filterBy="#{voucher.id}"
+                              filterMatchMode="contains">
+                        <h:outputText
+                                value="#{voucher.id}"/>
+                    </p:column>
+
+                    <p:column priority="1" colspan="2" headerText="#{bundle['vouchers.name']}"
+                              sortBy="#{voucher.title}"
+                              filterable="true"
+                              filterBy="#{voucher.title}"
+                              filterMatchMode="contains">
+
+                        <p:commandLink
+                                rendered="#{not voucher.voucherStatusByIdVoucherStatus.label.equalsIgnoreCase('fermé')}"
+                                id="titleAll" value="#{voucher.title}" styleClass="boldText"
+                                onclick="PF('dlg2').show();"
+                                update="@(form) msgs"
+                                resetValues="true"
+                                action="#{vouchersBean.showModalUpdate}"
+                        >
+                            <p:tooltip for="titleAll" value="#{voucher.description}"
+                                       showEffect="clip"
+                                       hideEffect="fold" position="bottom"/>
+                            <f:param name="idEntity" value="#{voucher.id}"/>
+                        </p:commandLink>
+
+                        <h:outputText
+                                id="titleAllClosing"
+                                styleClass="fontStyleItalic"
+                                rendered="#{voucher.voucherStatusByIdVoucherStatus.label.equalsIgnoreCase('fermé')}"
+
+                                value="#{voucher.title}">
+                        </h:outputText>
+                        <p:tooltip for="titleAllClosing" value="#{voucher.description}"
+                                   showEffect="clip"
+                                   hideEffect="fold" position="bottom"/>
+                    </p:column>
+
+                    <p:column priority="3" colspan="2" headerText="#{bundle['vouchers.contact']}"
+                              filterable="true"
+                              sortBy="#{voucher.contactsByIdContacts.lastname.concat(voucher.contactsByIdContacts.firstname)}"
+                              filterBy="#{voucher.contactsByIdContacts.lastname.concat(voucher.contactsByIdContacts.firstname)}"
+                              filterMatchMode="contains">
+                        <h:link
+                                value="#{voucher.contactsByIdContacts.lastname} #{voucher.contactsByIdContacts.firstname}"
+                                outcome="contactDetails.xhtml?contactID=#{voucher.contactsByIdContacts.id}"
+                        />
+                    </p:column>
+
+                    <p:column priority="3" colspan="2" headerText="#{bundle['vouchers.company']}"
+                              filterable="true"
+                              sortBy="#{voucher.companiesByIdCompanies.label}"
+                              filterBy="#{voucher.companiesByIdCompanies.label}"
+                              filterMatchMode="contains">
+                        <h:link
+                                value="#{voucher.companiesByIdCompanies.label}"
+                                outcome="companydetails.xhtml?companyID=#{voucher.companiesByIdCompanies.id}"/>
+                    </p:column>
+
+                    <p:column priority="5" colspan="1" headerText="#{bundle['vouchers.status']}"
+                              filterable="true"
+                              filterBy="#{voucher.voucherStatusByIdVoucherStatus.label}" filterMatchMode="exact"
+                              sortBy="#{voucher.voucherStatusByIdVoucherStatus.label}">
+                        <f:facet name="filter">
+                            <p:selectOneMenu onchange="PF('displayAllEntities').filter()"
+                                             style="width:100%; box-sizing: border-box;">
+                                <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                              itemValue="#{null}"
+                                              noSelectionOption="true"/>
+                                <f:selectItems value="#{voucherStatusBean.voucherStatusEntities}"
+                                               var="voucherStatusEntities"
+                                               itemValue="#{voucherStatusEntities.label}"
+                                               itemLabel="#{voucherStatusEntities.label}"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                        <h:outputText
+                                value="#{voucher.voucherStatusByIdVoucherStatus.label}"/>
+                    </p:column>
+
+                    <p:column priority="5" colspan="1" headerText="#{bundle['vouchers.creationDate']}"
+                              filterBy="#{voucher.creationDate}"
+                              sortBy="#{voucher.creationDate}"
+                              filterable="true"
+                              filterMatchMode="contains">
+                        <f:facet name="filter">
+                            <p:inputText placeholder="01/01/2021" onchange="PF('displayAllEntities').filter()">
+                                <f:convertDateTime type="localDate"
+                                                   pattern="dd/MM/yyyy"/>
+                            </p:inputText>
+                        </f:facet>
+                        <h:outputText value="#{voucher.creationDate}">
+                            <f:convertDateTime type="localDate"
+                                               pattern="dd/MM/yyyy"/>
+                        </h:outputText>
+                    </p:column>
+
+
+                    <p:column priority="4" colspan="1" headerText="#{bundle['vouchers.priority']}"
+                              sortBy="#{voucher.priority.label}"
+                              filterable="true"
+                              filterBy="#{voucher.priority.label}" filterMatchMode="exact">
+                        <f:facet name="filter">
+                            <p:selectOneMenu onchange="PF('displayAllEntities').filter()"
+                                             style="width:100%; box-sizing: border-box;">
+                                <f:selectItem itemLabel="#{bundle['selectChoice']}"
+                                              itemValue="#{null}"
+                                              noSelectionOption="true"/>
+                                <f:selectItems value="#{enumPriorityBean.enumPriority}"
+                                               var="enumPriority"
+                                               itemValue="#{enumPriority.label}"
+                                               itemLabel="#{enumPriority.label}"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                        <h:outputText
+                                value="#{voucher.priority.label}"/>
+                    </p:column>
+
+                    <p:column priority="5" colspan="1" headerText="#{bundle['vouchers.endDate']}"
+                              filterBy="#{voucher.endDate}"
+                              sortBy="#{voucher.endDate}"
+                              filterable="true"
+                              filterMatchMode="contains">
+                        <f:facet name="filter">
+                            <p:inputText placeholder="31/01/2021" onchange="PF('displayAllEntities').filter()">
+                                <f:convertDateTime type="localDate"
+                                                   pattern="dd/MM/yyyy"/>
+                            </p:inputText>
+                        </f:facet>
+                        <h:outputText value="#{voucher.endDate}">
+                            <f:convertDateTime type="localDate"
+                                               pattern="dd/MM/yyyy"/>
+                        </h:outputText>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </div>
+    </f:view>
+</cc:implementation>
+</html>

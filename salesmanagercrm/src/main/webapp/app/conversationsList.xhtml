@@ -1,0 +1,132 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="../WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">#{bundle['conversationList.title']}</ui:define>
+    <ui:define name="content">
+
+        <f:metadata>
+            <f:viewAction action="#{conversationsBean.findAllConversations}"/>
+        </f:metadata>
+
+        <h:body>
+            <div class="card card-w-title">
+                <h1>#{bundle['conversationList.title']}</h1>
+                <p:growl id="msg" life="2000"/>
+                <h:form id="form">
+                    <p:tab id="displayAll" title="#{bundle['all']} (#{conversationsBean.conversationsEntities.size()})">
+                        <p:dataTable paginator="true" rows="10"
+                                     selection="#{conversationsBean.selectedConversationsEntity}" selectionMode="single"
+                                     paginatorPosition="bottom"
+                                     var="convers"
+                                     rowKey="#{convers.id}"
+                                     emptyMessage="#{bundle['users.notFound']}"
+                                     rowsPerPageTemplate="10,20,50"
+                                     widgetVar="displayAllEntities"
+                                     filteredValue="#{conversationsBean.conversationsEntitiesFiltered}"
+                                     rendered="#{conversationsBean.conversationsEntities.size() eq 0 ? false : true}"
+                                     value="#{conversationsBean.conversationsEntityList}">
+
+                            <p:column colspan="3" headerText="#{bundle['message']}"
+                                      sortBy="#{convers.message}"
+                                      filterBy="#{convers.message}"
+                                      filterMatchMode="contains">
+                                <p:commandLink id="titleAll" value="#{convers.message}"
+                                               onclick="PF('dlg2').show();"
+                                               update="@(form)"
+                                >
+                                    <f:param name="idEntity" value="#{convers.id}"/>
+                                </p:commandLink>
+                            </p:column>
+
+                            <p:column colspan="2" headerText="#{bundle['user.username']}"
+                                      sortBy="#{convers.usersByIdUsers.username}"
+                                      filterBy="#{convers.usersByIdUsers.username}"
+                                      filterMatchMode="contains">
+                                <p:commandLink id="titleUsername" value="#{convers.usersByIdUsers.username}"
+                                               onclick="PF('dlg2').show();"
+                                               update="@(form)"
+                                >
+                                    <f:param name="idEntity" value="#{convers.id}"/>
+                                </p:commandLink>
+                            </p:column>
+
+                            <p:column colspan="2" headerText="#{bundle['firstname']}"
+                                      sortBy="#{convers.usersByIdUsers.firstname}"
+                                      filterBy="#{convers.usersByIdUsers.firstname}"
+                                      filterMatchMode="contains"
+                            >
+                                <h:outputText value="#{convers.usersByIdUsers.firstname}"/>
+                            </p:column>
+
+                            <p:column colspan="2" headerText="#{bundle['lastname']}"
+                                      sortBy="#{convers.usersByIdUsers.lastname}"
+                                      filterBy="#{convers.usersByIdUsers.lastname}"
+                                      filterMatchMode="contains"
+                            >
+                                <h:outputText value="#{convers.usersByIdUsers.lastname}"/>
+                            </p:column>
+
+                            <p:column colspan="2" headerText="#{bundle['conversation.date']}"
+                                      sortBy="#{convers.creationDate}"
+                                      filterBy="#{convers.creationDate}"
+                                      filterMatchMode="contains"
+                            >
+                                <p:outputLabel value="#{convers.creationDate}">
+                                    <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
+                                </p:outputLabel>
+                            </p:column>
+
+
+                            <p:column colspan="1">
+                                <h:panelGroup rendered="#{convers.active}">
+                                    <p:commandLink update="@form msg"
+                                                   rendered="#{usersBean.currentUser.isPermitted('deleteConversations')}"
+                                                   action="#{conversationsBean.delete(convers)}">
+                                        <i class="ui-icon ui-icon-delete-forever"/>
+                                        <p:confirm header="#{bundle['confirmation']}"
+                                                   message="#{bundle['conversation.delete']}"
+                                                   icon="fa fa-warning"/>
+
+                                        <f:param name="idEntity" value="#{c.id}"/>
+                                        <f:param name="typeEntities" value="all"/>
+                                    </p:commandLink>
+                                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                                        <p:commandButton value="#{bundle['yes']}" type="button"
+                                                         styleClass="ui-confirmdialog-yes GreenButton"
+                                                         icon="ui-icon-check"/>
+                                        <p:commandButton value="#{bundle['no']}" type="button"
+                                                         styleClass="ui-confirmdialog-no RedButton"
+                                                         icon="ui-icon-close"/>
+                                    </p:confirmDialog>
+                                </h:panelGroup>
+
+
+                                <h:panelGroup rendered="#{not convers.active}">
+                                    <p:commandLink update="@(form) msg"
+                                                   rendered="#{usersBean.currentUser.isPermitted('deleteConversations')}"
+                                                   action="#{conversationsBean.activate(convers)}">
+                                        <i class="ui-icon ui-icon-update"/>
+                                    </p:commandLink>
+                                </h:panelGroup>
+
+
+                            </p:column>
+
+
+                        </p:dataTable>
+                    </p:tab>
+                    <p:staticMessage severity="info" detail="#{bundle['users.notFound']}"
+                                     rendered="#{transactionsBean.transactionsEntities.size() eq 0 ? true : false}"/>
+                </h:form>
+            </div>
+
+
+
+
+        </h:body>
+    </ui:define>
+</ui:composition>

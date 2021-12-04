@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebContextManager">
+    <option name="state">
+      <map>
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs/createTransactions.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs/listAllTasks.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs/listAllTransactions.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs/listNotes.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs/listTasksByContactOrByCompany.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs/updateVouchers.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/composantsFxs" />
+      </map>
+    </option>
+  </component>
+</project>

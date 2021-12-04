@@ -1,0 +1,148 @@
+<ui:composition
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:p="http://primefaces.org/ui"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:fxs="http://java.sun.com/jsf/composite/composantsFxs">
+
+
+    <div class="topbar">
+        <div class="logo">
+            <h:link outcome="/app/dashboard">
+                <p:graphicImage name="images/logo_salesManager.png" library="barcelona-layout"/>
+            </h:link>
+        </div>
+
+        <h:link outcome="/app/dashboard">
+            <p:graphicImage name="images/SalesManager-text.png" library="barcelona-layout" styleClass="title-topBar"/>
+        </h:link>
+
+        <a id="topbar-menu-button" href="#">
+            <i class="fa fa-bars"/>
+        </a>
+
+        <ul class="topbar-menu fadeInDown animated">
+
+            <li class="profile-item">
+                <a id="topbar-usermenu-button" href="#">
+                    <div class="profile-info profile-info-corrected">
+                        <span class="topbar-item-name profile-name">#{usersBean.usersEntity.lastname}</span>
+                        <span class="topbar-item-name profile-role">#{usersBean.usersEntity.rolesByIdRoles.label}</span>
+                    </div>
+                </a>
+
+                <ul id="topbar-usermenu" class="usermenu">
+                    <li>
+                        <h:form>
+                            <h:commandLink action="#{usersBean.goToProfilePage}">
+                                <i class="fa fa-fw fa-user"/>
+                                <span class="topbar-item-name">#{bundle['menu.profile']}</span>
+                            </h:commandLink>
+                        </h:form>
+                    </li>
+                    <h:panelGroup
+                            rendered="#{usersBean.currentUser.isPermitted('showRoles') or usersBean.currentUser.isPermitted('showRolesPermissions') or usersBean.currentUser.isPermitted('showUsers') }">
+                        <li>
+                            <a href="#">
+                                <i class="fa fa-fw fa-cog"/>
+                                <span class="topbar-item-name">#{bundle['menu.settings']}</span>
+                                <i class="fa fa-angle-down menu-arrow"/>
+                            </a>
+                            <ul>
+                                <h:panelGroup rendered="#{usersBean.currentUser.isPermitted('showRoles')}">
+                                    <li role="menuitem">
+                                        <h:form>
+                                            <h:commandLink action="#{usersBean.goToRolesPage}">
+                                                <i class="fa fa-fw fa-user"/>
+                                                <span class="topbar-item-name">#{bundle['roleList.title']}</span>
+                                            </h:commandLink>
+                                        </h:form>
+                                    </li>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{usersBean.currentUser.isPermitted('showRolesPermissions')}">
+                                    <li role="menuitem">
+                                        <h:form>
+                                            <h:commandLink action="#{usersBean.goToRolesPermissionsPage}">
+                                                <i class="fa fa-fw fa-user"/>
+                                                <span class="topbar-item-name">#{bundle['manageRolePermissions.title']}</span>
+                                            </h:commandLink>
+                                        </h:form>
+                                    </li>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{usersBean.currentUser.isPermitted('showUsers')}">
+                                    <li role="menuitem">
+                                        <h:form>
+                                            <h:commandLink action="#{usersBean.goToUserListPage}">
+                                                <i class="fa fa-fw fa-user"/>
+                                                <span class="topbar-item-name">#{bundle['usersList.title']}</span>
+                                            </h:commandLink>
+                                        </h:form>
+                                    </li>
+                                </h:panelGroup>
+                            </ul>
+                        </li>
+                    </h:panelGroup>
+                    <li>
+                        <h:form>
+                            <h:commandLink action="#{usersBean.logOut}">
+                                <i class="fa fa-fw fa-sign-out"/>
+                                <span class="topbar-item-name">#{bundle['logOut']}</span>
+                            </h:commandLink>
+                        </h:form>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="material-icons">language</i>
+                </a>
+                <ul class="animated">
+                    <li role="menuitem">
+                        <h:form>
+                            <h:commandLink action="#{internalizationBean.changeLanguage}">
+                                <h:graphicImage
+                                        value="/resources/images/united_kingdom_icon_127821.png"
+                                        style="width: 15px; height: auto"/>
+                                <span>#{bundle['english']}</span>
+                                <f:setPropertyActionListener target="#{internalizationBean.language}"
+                                                             value="en"/>
+                            </h:commandLink>
+                        </h:form>
+                    </li>
+
+                    <li role="menuitem">
+                        <h:form>
+                            <h:commandLink action="#{internalizationBean.changeLanguage}">
+                                <h:graphicImage
+                                        value="/resources/images/french_guiana_icon_127817.png"
+                                        style="width: 15px; height: auto"/>
+                                <span>#{bundle['french']}</span>
+                                <f:setPropertyActionListener target="#{internalizationBean.language}"
+                                                             value="fr"/>
+                            </h:commandLink>
+                        </h:form>
+                    </li>
+
+                </ul>
+            </li>
+            <h:panelGroup rendered="#{conversationsBean.paramType}">
+                <li>
+                    <h:form>
+                        <p:commandLink id="carBtn" action="#{conversationsBean.get10convers}"><i class="material-icons"
+                                                                                                 style="color: white">message</i></p:commandLink>
+                        <p:overlayPanel id="carPanel" for="carBtn" hideEffect="fade" dynamic="true" dismissable="true"
+                                        style="width: 500px; height: auto" showCloseIcon="true">
+                            <div class="dashboard">
+                                <div class="ui-g-12 chat">
+                                    <fxs:conversation id="conversation"/>
+                                </div>
+                            </div>
+                        </p:overlayPanel>
+                    </h:form>
+                </li>
+            </h:panelGroup>
+        </ul>
+    </div>
+
+</ui:composition>
